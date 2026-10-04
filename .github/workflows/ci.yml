@@ -67,23 +67,37 @@ jobs:
 
       # The audit surfaces two classes of problem that are silent by default:
       # leaked shortcode placeholders and missing-translation placeholders.
-      # `HAHAHUGO` is searched by prefix because writing the full placeholder
-      # prefix in content aborts the build outright.
+      #
+      # The site DOCUMENTS the very strings this searches for (the audit is
+      # explained in the feature-matrix, navigation and Markdown pages), so those
+      # pages are excluded by path — otherwise the audit fails on its own
+      # documentation the first time it runs. The shortcode-placeholder literal
+      # cannot appear in content at all (it aborts the build), so it needs no
+      # exclusion and can be searched in full.
       - name: Site audit
         run: |
           set -euo pipefail
           HUGO_MINIFY_TDEWOLFF_HTML_KEEPCOMMENTS=true \
           HUGO_ENABLEMISSINGTRANSLATIONPLACEHOLDERS=true \
             hugo --ignoreCache
-          if grep -rn "HAHAHUGO" public/; then
-            echo "::error::leaked shortcode placeholder in the build output"; exit 1
-          fi
-          if grep -rn "MISSING_TRANSLATION" public/; then
-            echo "::error::missing-translation placeholder in the build output"; exit 1
-          fi
-          if grep -rn "raw HTML omitted" public/; then
-            echo "::error::HTML was discarded — check markup.goldmark.renderer.unsafe"; exit 1
-          fi
+
+          scan() {
+            local needle="$1" why="$2" hits
+            hits=$(grep -rn --binary-files=text --fixed-strings "$needle" public/ \
+              | grep -v '/docs/reference/feature-matrix/' \
+              | grep -v '/docs/configuration/navigation/' \
+              | grep -v '/docs/content/markdown/' \
+              || true)
+            if [ -n "$hits" ]; then
+              echo "::error::$why"
+              echo "$hits" | head -20
+              exit 1
+            fi
+          }
+
+          scan "HAHAHUGOSHORTCODE" "leaked shortcode placeholder in the build output"
+          scan "MISSING_TRANSLATION" "missing-translation placeholder in the build output"
+          scan "raw HTML omitted" "HTML was discarded — check markup.goldmark.renderer.unsafe"
 
       - name: Report the rendered page count
         run: |

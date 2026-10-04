@@ -86,14 +86,28 @@ A silent console does not mean a page rendered. `hugo list all` prints the conte
 when the page count looks wrong.
 
 Before publishing, the documentation also recommends the site audit, which surfaces problems
-that are silent by default:
+that are silent by default. Note the exclusions: **the site documents the very strings this
+searches for** (this audit is explained in the feature-matrix, navigation and Markdown pages),
+so those pages are filtered out. An unscoped grep fails on its own documentation.
 
 ```bash
 HUGO_MINIFY_TDEWOLFF_HTML_KEEPCOMMENTS=true HUGO_ENABLEMISSINGTRANSLATIONPLACEHOLDERS=true hugo --ignoreCache
-grep -rn "HAHAHUGO" public/            # leaked shortcode placeholders (prefix only, see §7)
-grep -rn "MISSING_TRANSLATION" public/ # missing-translation placeholders
-grep -rn "raw HTML omitted" public/    # HTML discarded because unsafe was off
+
+scan() {
+  local needle="$1" why="$2" hits
+  hits=$(grep -rn --binary-files=text --fixed-strings "$needle" public/ \
+    | grep -v '/docs/reference/feature-matrix/' \
+    | grep -v '/docs/configuration/navigation/' \
+    | grep -v '/docs/content/markdown/' || true)
+  if [ -n "$hits" ]; then echo "::error::$why"; echo "$hits" | head -20; exit 1; fi
+}
+
+scan "HAHAHUGOSHORTCODE" "leaked shortcode placeholder"   # safe to spell in full: content containing it cannot build
+scan "MISSING_TRANSLATION" "missing-translation placeholder"
+scan "raw HTML omitted"   "HTML discarded because unsafe was off"
 ```
+
+`.github/workflows/ci.yml` runs exactly this, so the local audit and CI cannot disagree.
 
 ### Building in parallel
 
@@ -220,10 +234,13 @@ A violation fails the whole build, not one page.
    `{{</* note */>}}` … `{{</* /note */>}}`, `{{%/* tabs */%}}` … `{{%/* /tabs */%}}`,
    closing forms `{{</* /name */>}}` and `{{%/* /name */%}}`.
    To show the escape itself: `{{</*/* note */*/>}}`.
-2. **Never write Hugo's shortcode placeholder prefix in full.** The literal string aborts
-   rendering with `illegal state in content; shortcode token missing end delim`, attributed to
-   whichever page happens to be rendering — not necessarily the page containing it. That is
-   why the audit grep in §3 searches only the prefix.
+2. **Never write Hugo's shortcode placeholder prefix in full inside `content/`.** The literal
+   string aborts rendering with `illegal state in content; shortcode token missing end delim`,
+   attributed to whichever page happens to be rendering — not necessarily the page containing
+   it. To display it, break it with a zero-width entity outside a code span
+   (`H&#xfeff;AHAHUGOSHORTCODE`). This does not apply to `AGENTS.md`, README or the workflows,
+   which are not content — and grepping the BUILD OUTPUT for the full literal is safe and
+   correct, because a site that contains it cannot build at all.
 3. **`{{% %}}` shortcodes need `unsafe = true`.** Their output is re-parsed as Markdown. With
    `[markup.goldmark.renderer] unsafe` off, every panel is replaced by
    `<!-- raw HTML omitted -->`.

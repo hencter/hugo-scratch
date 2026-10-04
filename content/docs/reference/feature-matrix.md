@@ -161,11 +161,14 @@ hugo --ignoreCache --panicOnWarning --printPathWarnings --printUnusedTemplates -
 
 ```bash
 HUGO_MINIFY_TDEWOLFF_HTML_KEEPCOMMENTS=true HUGO_ENABLEMISSINGTRANSLATIONPLACEHOLDERS=true hugo --ignoreCache
-grep -rn "HAHAHUGO" public/                  # 短代码占位符泄漏（见下）
 grep -rn "MISSING_TRANSLATION" public/       # 缺翻译占位
 grep -rn "raw HTML omitted" public/          # unsafe 没开时的 HTML 被吃掉
 ```
 
-第一条 grep 只写了前缀，这不是笔误：Hugo 的短代码占位符前缀一旦**完整**出现在正文里，构建会直接中止并报 `illegal state in content; shortcode token missing end delim`，而且报错指向正在渲染的那一页，不一定是你写它的那一页。这条规则本身就是这个 grep 存在的原因——用前缀搜索既能找到泄漏，又不会被自己的检查命令绊倒。
+第三条要在产物里搜 Hugo 的短代码占位符，完整字符串是 H&#xfeff;AHAHUGOSHORTCODE。这里只能这样写：完整的占位符前缀一旦出现在**正文**里，构建会直接中止并报 `illegal state in content; shortcode token missing end delim`，而且报错指向正在渲染的那一页，不一定是你写它的那一页。写成 HTML 实体之后，渲染出来的产物里也不含那个字面串。
+
+{{< warning >}}
+这三条 grep 都可能命中文档本身——这一页就写着 `MISSING_TRANSLATION` 与 `raw HTML omitted`，[导航](/docs/configuration/navigation/)和 [Markdown](/docs/content/markdown/) 两页也各写过其中一条。仓库的 CI 因此按路径排除了记录这些字符串的页面；审计命令要么排除文档，要么接受第一次运行就会因为自己的说明文本而失败。
+{{< /warning >}}
 
 最后，构建产物本身才是「页面到底渲染了没有」的证据：`public/` 里存在对应目录，才算这一页真的存在——控制台什么都没说，不代表它渲染了。

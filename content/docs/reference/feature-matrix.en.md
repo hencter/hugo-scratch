@@ -161,11 +161,14 @@ The documentation also recommends the site audit before publishing, because it s
 
 ```bash
 HUGO_MINIFY_TDEWOLFF_HTML_KEEPCOMMENTS=true HUGO_ENABLEMISSINGTRANSLATIONPLACEHOLDERS=true hugo --ignoreCache
-grep -rn "HAHAHUGO" public/                  # leaked shortcode placeholders (see below)
 grep -rn "MISSING_TRANSLATION" public/       # missing-translation placeholders
 grep -rn "raw HTML omitted" public/           # HTML discarded because unsafe was off
 ```
 
-The first grep spells only the prefix, and that is not a typo: the moment Hugo's full shortcode placeholder prefix appears in content, the build aborts with `illegal state in content; shortcode token missing end delim` — and the error is attributed to whichever page was rendering, not necessarily the page that contains the string. That rule is the reason this grep exists: searching for the prefix finds a leak without letting the check trip over itself.
+A third search looks for Hugo's shortcode placeholder; its full spelling is H&#xfeff;AHAHUGOSHORTCODE. It can only be written that way here: the moment the full placeholder prefix appears in **content**, the build aborts with `illegal state in content; shortcode token missing end delim` — and the error is attributed to whichever page was rendering, not necessarily the page containing it. Written as an HTML entity, the rendered output does not contain the literal string either.
+
+{{< warning >}}
+All three searches can match the documentation itself — this page quotes `MISSING_TRANSLATION` and `raw HTML omitted`, and [Navigation](/docs/configuration/navigation/) and [Markdown](/docs/content/markdown/) each quote one of them too. The repository's CI therefore excludes the pages that document those strings by path. An audit either excludes the docs, or it fails on its own explanatory text the first time it runs.
+{{< /warning >}}
 
 Finally, the build output is the evidence that a page rendered at all: the directory under `public/` has to exist. A silent console does not mean a page was rendered.
