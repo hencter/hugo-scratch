@@ -86,9 +86,10 @@ A silent console does not mean a page rendered. `hugo list all` prints the conte
 when the page count looks wrong.
 
 Before publishing, the documentation also recommends the site audit, which surfaces problems
-that are silent by default. Note the exclusions: **the site documents the very strings this
-searches for** (this audit is explained in the feature-matrix, navigation and Markdown pages),
-so those pages are filtered out. An unscoped grep fails on its own documentation.
+that are silent by default. Two exclusions are deliberate: **the site documents the very
+strings this searches for** (this audit is explained in the feature-matrix, navigation and
+Markdown pages), and **`public/search.json` embeds page bodies by design**, so it inherits
+whatever those pages say. An unscoped grep fails on its own documentation.
 
 ```bash
 HUGO_MINIFY_TDEWOLFF_HTML_KEEPCOMMENTS=true HUGO_ENABLEMISSINGTRANSLATIONPLACEHOLDERS=true hugo --ignoreCache
@@ -98,7 +99,8 @@ scan() {
   hits=$(grep -rn --binary-files=text --fixed-strings "$needle" public/ \
     | grep -v '/docs/reference/feature-matrix/' \
     | grep -v '/docs/configuration/navigation/' \
-    | grep -v '/docs/content/markdown/' || true)
+    | grep -v '/docs/content/markdown/' \
+    | grep -v '/search.json:' || true)
   if [ -n "$hits" ]; then echo "::error::$why"; echo "$hits" | head -20; exit 1; fi
 }
 

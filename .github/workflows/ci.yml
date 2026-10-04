@@ -68,12 +68,16 @@ jobs:
       # The audit surfaces two classes of problem that are silent by default:
       # leaked shortcode placeholders and missing-translation placeholders.
       #
-      # The site DOCUMENTS the very strings this searches for (the audit is
-      # explained in the feature-matrix, navigation and Markdown pages), so those
-      # pages are excluded by path — otherwise the audit fails on its own
-      # documentation the first time it runs. The shortcode-placeholder literal
-      # cannot appear in content at all (it aborts the build), so it needs no
-      # exclusion and can be searched in full.
+      # Two exclusions, both deliberate:
+      #   · the site DOCUMENTS the strings this searches for (the audit is
+      #     explained in the feature-matrix, navigation and Markdown pages), so
+      #     those pages are excluded by path — otherwise the audit fails on its
+      #     own documentation;
+      #   · public/search.json embeds page bodies by design, so it inherits
+      #     whatever those pages say. It is derived output: auditing the HTML and
+      #     the Markdown twins already covers every page.
+      # The shortcode-placeholder literal cannot appear in content at all (it
+      # aborts the build), so it needs no exclusion and can be searched in full.
       - name: Site audit
         run: |
           set -euo pipefail
@@ -87,6 +91,7 @@ jobs:
               | grep -v '/docs/reference/feature-matrix/' \
               | grep -v '/docs/configuration/navigation/' \
               | grep -v '/docs/content/markdown/' \
+              | grep -v '/search.json:' \
               || true)
             if [ -n "$hits" ]; then
               echo "::error::$why"

@@ -168,7 +168,7 @@ grep -rn "raw HTML omitted" public/          # unsafe 没开时的 HTML 被吃�
 第三条要在产物里搜 Hugo 的短代码占位符，完整字符串是 H&#xfeff;AHAHUGOSHORTCODE。这里只能这样写：完整的占位符前缀一旦出现在**正文**里，构建会直接中止并报 `illegal state in content; shortcode token missing end delim`，而且报错指向正在渲染的那一页，不一定是你写它的那一页。写成 HTML 实体之后，渲染出来的产物里也不含那个字面串。
 
 {{< warning >}}
-这三条 grep 都可能命中文档本身——这一页就写着 `MISSING_TRANSLATION` 与 `raw HTML omitted`，[导航](/docs/configuration/navigation/)和 [Markdown](/docs/content/markdown/) 两页也各写过其中一条。仓库的 CI 因此按路径排除了记录这些字符串的页面；审计命令要么排除文档，要么接受第一次运行就会因为自己的说明文本而失败。
+这三条 grep 都可能命中文档本身——这一页就写着 `MISSING_TRANSLATION` 与 `raw HTML omitted`，[导航](/docs/configuration/navigation/)和 [Markdown](/docs/content/markdown/) 两页也各写过其中一条。仓库的 CI 因此按两处排除：**记录这些字符串的页面**按路径跳过，`public/search.json` 整份跳过——按设计它内嵌了每页正文，所以那些说明文字会跟着进去，而审计 HTML 与 Markdown 孪生页已经覆盖了每一页。审计命令要么做这两处排除，要么接受第一次运行就会因为自己的说明文本而失败。
 {{< /warning >}}
 
 最后，构建产物本身才是「页面到底渲染了没有」的证据：`public/` 里存在对应目录，才算这一页真的存在——控制台什么都没说，不代表它渲染了。
