@@ -118,3 +118,8 @@ The Tailwind part is not implemented by Hugo itself; it runs the CLI installed w
 - `layouts/_partials/head.html` calls `head/css.html` from inside a deferred template: the statistics file only exists once every page has been rendered, and an inline call would compile against the previous build's data and fail outright on a clean clone.
 
 Troubleshoot in the same order as that dependency list: no colour at all on the page means checking whether `public/css/bundle.min.<hash>.css` was produced; only Tailwind utilities missing means checking that `npm ci` ran and `hugo_stats.json` exists; only your own new rule ignored means checking that it lives in `custom.css` or a file that imports from it; source and output both correct but the browser still showing the old styling means suspecting something caching the HTML, since the fingerprint guarantees a new filename whenever content changes.
+
+## Reference
+
+{{< docref href="functions/css/" title="CSS functions" >}}
+{{< docref href="functions/css/tailwindcss/" title="Tailwind CSS" >}}

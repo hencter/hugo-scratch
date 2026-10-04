@@ -115,3 +115,7 @@ Inline works the same way: \(\nabla \cdot \vec{E} = \rho / \varepsilon_0\). The 
 Markdown-notation shortcodes (`{{%/* tabs */%}}`, `{{%/* steps */%}}`) let headings inside them reach the table of contents because they run **before** the Markdown renderer: their output is parsed as Markdown blocks. Standard-notation shortcodes run after it, `.Inner` is unrendered text, and headings inside them never appear in `.Fragments`.
 
 That difference decides the choice: **if the content has headings and you want them in the table of contents, it must be Markdown notation.**
+
+## Reference
+
+{{< docref "render-hooks/"  >}}

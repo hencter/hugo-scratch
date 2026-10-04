@@ -1,4 +1,5 @@
 +++
+aliases = ['/docs/quick-start/']
 title = 'Quick start'
 linkTitle = 'Quick start'
 description = 'Check your Hugo version, clone the repository with its submodule, start the dev server, and verify what you are looking at.'
@@ -15,7 +16,7 @@ This page does one thing: get this repository to render on your machine. It expl
 
 ## Before you start
 
-You need a Hugo binary at **0.146 or newer**. That floor is the theme's own declaration: `[module.hugoVersion]` in `themes/hugo-scratch-theme/hugo.toml` says `min = '0.146.0'`, and below it Hugo refuses to build while reading the module configuration. That failure points at no page in particular, so it looks as though the repository is broken. The version that built this page is {{< version >}}.
+You need a Hugo binary at **0.146 or newer**. That floor is the theme's own declaration: `[module.hugoVersion]` in `themes/hugo-scratch-theme/hugo.toml` says `min = '0.146.0'`. Below it Hugo prints a `Module "hugo-scratch-theme" is not compatible with this Hugo version` **warning** and then finishes the build, so a plain `hugo` will not stop you — this repository's strict build (`--panicOnWarning`) will. The version that built this page is {{< version >}}.
 
 Beyond that you need `git`, a text editor, and one network round trip to install dependencies. The stylesheet is compiled in two parts: the theme's design system goes through Hugo's own `css.Build` (no Node needed), and the Tailwind v4 part goes through the official `css.TailwindCSS` integration, which runs the Tailwind CLI installed with npm **at the site root** — so `npm ci` comes first after cloning. The JavaScript side is always bundled by esbuild inside Hugo and needs no extra tooling.
 
@@ -81,10 +82,18 @@ Once the site is open, confirm three things in this order. Each failure means so
 
 - The home page shows a title, a navigation bar and a language switcher, properly styled. Plain unstyled text means the theme did not load; correct layout with wrong colours is a stylesheet problem and out of scope here.
 - "Docs" in the header reaches the [docs](/docs/) landing page and the sidebar lists the chapters. The sidebar appears only for the sections named in `[params.nav] sidebarSections`, and `docs` is one of them.
-- Open `content/docs/quick-start.md`, change a sentence and save. The browser should reload on its own. If live reload does not work, every later edit costs you a manual restart.
+- Open `content/docs/start/quick-start.md`, change a sentence and save. The browser should reload on its own. If live reload does not work, every later edit costs you a manual restart.
 
 To see exactly which files Hugo treats as content, print the inventory with `hugo list all`. To check whether an edit affects the build, run a one-shot build with `hugo --logLevel warn`.
 
 ## Next
 
 With the site running locally, read [Directory structure](/docs/start/directory-structure/) next: it marks the directories you must not edit by hand, `public/` and `resources/` among them. Then read [Configuration](/docs/configuration/) to understand why this site keeps no `hugo.toml` at its root and how the theme, `_default` and environment layers merge — every configuration key mentioned in later pages is defined there.
+
+## The gate before delivery
+
+{{< include "build-gate" >}}
+
+## Reference
+
+{{< docref "getting-started/"  >}}

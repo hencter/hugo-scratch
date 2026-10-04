@@ -17,7 +17,7 @@ The sidebar expands only the branch you are currently inside and leaves the rest
 
 Three things:
 
-- A Hugo binary at 0.146 or newer. The theme's `hugo.toml` declares `min = '0.146.0'` under `[module.hugoVersion]`, and anything older refuses to build at startup. The version that built this page is {{< version >}}.
+- A Hugo binary at 0.146 or newer. The theme's `hugo.toml` declares `min = '0.146.0'` under `[module.hugoVersion]`; anything older makes Hugo print a `Module "hugo-scratch-theme" is not compatible with this Hugo version` **warning** and carry on building — so this repository's strict build (`--panicOnWarning`) turns that warning into a failure, while a plain `hugo` will not tell you. The version that built this page is {{< version >}}.
 - A copy of the repository with its submodules. The theme lives at `themes/hugo-scratch-theme` and is attached as a git submodule, so a plain clone leaves that directory empty.
 - A text editor, plus one `npm ci`. The theme's design system and scripts go through Hugo's own `css.Build` and `js.Build` and need no Sass; only the Tailwind v4 stage runs the CLI that npm installs at the site root.
 

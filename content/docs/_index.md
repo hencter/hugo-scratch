@@ -17,7 +17,7 @@ weight = 10
 
 你只需要三样东西：
 
-- 一个 0.146 或更新的 Hugo 可执行文件。主题的 `hugo.toml` 在 `[module.hugoVersion]` 里声明了 `min = '0.146.0'`，低于这个版本会在启动时直接拒绝构建。当前构建这个站点的版本是 {{< version >}}。
+- 一个 0.146 或更新的 Hugo 可执行文件。主题的 `hugo.toml` 在 `[module.hugoVersion]` 里声明了 `min = '0.146.0'`；低于它时 Hugo 只会打出一条 `Module "hugo-scratch-theme" is not compatible with this Hugo version` 的**警告**然后继续构建——所以本仓库的严格构建（`--panicOnWarning`）会把这条警告变成失败，而裸 `hugo` 不会提醒你。当前构建这个站点的版本是 {{< version >}}。
 - 一份带子模块的仓库副本。主题 `themes/hugo-scratch-theme` 是以 git 子模块的形式挂进来的，普通克隆拿到的是一个空目录。
 - 一个能改文本的编辑器，以及一次 `npm ci`。主题的设计系统与脚本都走 Hugo 自己的 `css.Build` / `js.Build`，不需要 Sass；只有 Tailwind v4 那一段调用 npm 装在站点根目录的 CLI。
 

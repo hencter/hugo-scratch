@@ -6,8 +6,9 @@
 #  forgiving than the repository, so a warning that fails locally fails here too.
 #
 #  Two checkout settings are load-bearing:
-#    · submodules: recursive — the theme is a git submodule; without it the build
-#      fails with `found no layout file for "html" for kind "page"`;
+#    · submodules: recursive — the theme is a git submodule; without it the theme
+#      directory is empty and the build stops at config loading with
+#      `unknown output format "md" for kind "taxonomy"` (the theme declares them);
 #    · fetch-depth: 0 — enableGitInfo = true makes "last updated" a fact read from
 #      the commit history, and a shallow clone would silently fall back to the
 #      front-matter dates.

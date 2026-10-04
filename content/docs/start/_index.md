@@ -23,7 +23,7 @@ tags = ['Hugo']
 
 一个 0.146 或更新的 Hugo 可执行文件，这是主题在 `[module.hugoVersion]` 里写下的下限；一个带子模块的仓库副本；一个终端；以及一次 `npm ci`——Tailwind v4 的 CLI 装在站点根目录，只有样式表的那一段用到它。设计系统与脚本不需要 Sass 编译器：它们完全由 Hugo 的 `css.Build`、`js.Build` 处理，字体和图片都是静态文件。
 
-Hugo 用 `hugo version` 自报家门，第一件事就是运行它。如果它打印的版本低于 0.146，先升级再往下走——低于下限时构建会在读取模块配置的阶段就失败，而不是在某个页面上报错，所以看起来会像是站点本身坏了。
+Hugo 用 `hugo version` 自报家门，第一件事就是运行它。如果它打印的版本低于 0.146，先升级再往下走——低于下限时 Hugo 只会打印一条 `Module "hugo-scratch-theme" is not compatible with this Hugo version` 的警告，构建照样跑完。这是最容易忽略的一类问题：裸 `hugo` 不会拦住你，而本仓库的严格构建会。
 
 ## 跑起来之后先验证什么
 

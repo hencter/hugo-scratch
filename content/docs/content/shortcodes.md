@@ -170,3 +170,28 @@ flowchart LR
 从 `data/changelog.toml` 直接渲染版本列表。同一个数据源还会被内容适配器展开成 `/changelog/` 下的一页页：
 
 {{< changelog >}}
+
+## 参考
+
+{{< docref "content-management/shortcodes/"  >}}
+
+
+## 跨语言参考：docref
+
+{{< docref "content-management/shortcodes/" >}}
+
+它只有一件事要做：**同一次调用，在两种语言下指向各自的上游文档**。主机名来自 `config/_default/params.toml` 的 `[docs]`，所以中文页给出 hugozh.cn、英文页给出 gohugo.io，切换语言时参考文档跟着切换，而正文只写了一遍。链接上带 `hreflang` 与 `lang`，标明目标文档的语言；旁边印出主机名，因为"参考"在两个站点上不是一回事——一个是社区译文，一个是上游原文。
+
+路径兼容性是量过的，不是猜的：抽样的 26 条文档路径在两个站点上都是 200。万一某天分叉，用 `zh=` 覆盖即可，调用形状不变：
+
+```text
+{{</* docref href="new/path/" zh="old/path/" */>}}
+```
+
+## 片段复用：include 与无头包
+
+{{< include "build-gate" >}}
+
+上面这一段不是写在这一页里的，而是 `{{</* include "build-gate" */>}}` 取来的。片段放在 `content/snippets/build-gate/index.md`，前置元数据里的 `headless = true` 让它成为一个**无头包**：Hugo 会渲染它的内容，但不发布任何东西——没有 URL、不进列表、没有 Markdown 孪生页。区别很实在：`public/snippets/` 在产物里根本不存在，而它的文字出现在两个引用它的页面上。
+
+`site.GetPage` 能按路径找到无头包，这正是它能工作的原因；而 `.Pages`、`.RegularPages`、`.Sections` 这些页面集合里永远不会有它。

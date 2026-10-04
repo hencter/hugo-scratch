@@ -79,3 +79,7 @@ The request: "The quick start page has to say that cloning needs `--recurse-subm
 1. **Locate.** The agent reads `AGENTS.md`, then the front matter of `content/docs/start/quick-start.md`, to establish which page changes and what that page costs a reader.
 2. **Touch the files.** The change lands in `content/docs/start/quick-start.md` and `content/docs/start/quick-start.en.md`, keeping heading levels and code blocks aligned. The banner goes into the `notice` front-matter field rather than into hand-written HTML in the body. If the rule itself is missing from `AGENTS.md`, that file is updated too — it is what the next agent reads.
 3. **Prove it.** Run the strict build for exit code 0; read `public/docs/start/quick-start/index.html` and confirm both the new sentence and the banner element are there; read `public/docs/start/quick-start/index.md` and confirm the Markdown output matches; then confirm with `hugo list all` that the page count is unchanged, because a content-only change must not change how many pages the site has.
+
+## One definition of the gate
+
+{{< include "build-gate" >}}

@@ -31,15 +31,15 @@ Convention: paths in the implementation column are relative to the repository ro
 
 | Feature | Implementation | Verification |
 | --- | --- | --- |
-| Branch / leaf / headless bundles | `content/docs/**`, `content/blog/*/index.md` | `hugo list all` |
+| Branch / leaf / headless bundles | `content/docs/**`, `content/blog/*/index.md`; the headless bundle `content/snippets/build-gate/index.md` | `hugo list all`; the headless bundle produces **no** `public/snippets/` yet its text appears on the pages that include it |
 | Page resources and image handling | `content/blog/hugo-pipes/cover.png` | the image carries `width`/`height` |
 | Content adapter (pages from data) | `content/changelog/_content.gotmpl` + `data/changelog.toml` | `public/changelog/v1-0-0/index.html` exists |
 | Three taxonomies | `[taxonomies]` = tag / category / series | `public/tags/`, `public/categories/`, `public/series/` |
 | Front-matter contract | `themes/hugo-scratch-theme/archetypes/docs.md` | `hugo new content docs/x.md` uses it |
-| Aliases and redirects | `aliases` front matter | the generated alias page uses `<meta http-equiv="refresh">` |
+| Aliases and redirects | `aliases` in `content/docs/start/quick-start.md` (the page moved from `/docs/quick-start/`) | `public/docs/quick-start/index.html` is a `<meta http-equiv="refresh">` page; the alias path is relative to the site root and Hugo adds the language prefix itself |
 | Pagination (2 per page, deliberately small) | `[pagination] pagerSize` | `public/blog/page/2/index.html` |
 | Year-grouped listing | `groupByYear` in `content/blog/_index.md` | the blog list contains `<h2 id="year-2026">` |
-| Draft / future / expired and the `notice` banner | `layouts/_partials/banner.html` | add `notice = "…"` to a page and rebuild |
+| Draft / future / expired and the `notice` banner | `layouts/_partials/banner.html` | `notice = "…"` shows immediately; Hugo EXCLUDES draft, future-dated and expired pages, so those three banners need `hugo -D`, `--buildFuture` and `--buildExpired` respectively — and `hugo list drafts`, `hugo list future`, `hugo list expired` enumerate them without building |
 | Prev/next within a section | `layouts/_partials/page-nav.html` | the previous/next links under the article |
 
 ## Templates and rendering
@@ -53,6 +53,9 @@ Convention: paths in the implementation column are relative to the repository ro
 | Inline partials (`define` inside a partial file) | `layouts/_partials/sidebar.html` and friends | the sidebar tree, menu, TOC and list rows all use it |
 | Shortcodes, standard notation (`.Inner` is raw) | `layouts/_shortcodes/note.html` and friends | see [Shortcodes](/docs/content/shortcodes/) |
 | Shortcodes, Markdown notation (`.Inner` is rendered) | `tabs.html` / `steps.html` / `columns.html` | same page |
+| Language-aware documentation reference | `layouts/_shortcodes/docref.html` + the `[docs]` config | the Chinese page points at hugozh.cn and the English one at gohugo.io from **one** call site; switching language switches the reference |
+| Fragment reuse via a headless bundle | `include.html` + `content/snippets/` | `public/snippets/` does not exist, yet the fragment's text appears on both pages that include it |
+| Icon primitive, sized in one place | `layouts/_partials/icon.html` + the `.icon` rule | delete the `.icon` rule and a callout icon fills the entire callout |
 | A shared `.Store` between shortcodes | `tab.html` writes, `tabs.html` reads the parent's | the tab buttons are server-rendered |
 | Overriding a built-in shortcode | `figure.html`, `youtube.html` | the site's file of the same name wins |
 | Seven render hooks | `layouts/_markup/render-*.html` | see [Render hooks](/docs/content/render-hooks/) |
@@ -65,7 +68,7 @@ Convention: paths in the implementation column are relative to the repository ro
 | Feature | Implementation | Verification |
 | --- | --- | --- |
 | Official Tailwind integration (`css.TailwindCSS`) | `layouts/_partials/head/css.html` + `assets/css/tailwind.css` | the output contains `.mt-6`, `.flex` and other utilities used once each |
-| Tailwind scanned from the rendered result | `@source "hugo_stats.json"` | change a class name in a template and rebuild; the output changes |
+| Tailwind scanned from the rendered result | `@source "hugo_stats.json"` | measured: every class this site uses also occurs in a file Tailwind auto-scans, so deleting the line yields a byte-identical bundle. What it actually covers is a class that exists **only** in the rendered output, assembled by interpolation, which auto-scanning cannot see |
 | Layering (theme < components < utilities) | the `@layer` statement prepended by `head/css.html` | the first `@layer` in the output is the order statement |
 | Preflight deliberately skipped | comments and imports in `assets/css/tailwind.css` | lists still have markers; the theme's own reset applies |
 | Design system merged with `css.Build` (`@import`) | `assets/css/design-system.css` | the output is a single stylesheet |
@@ -105,7 +108,7 @@ Convention: paths in the implementation column are relative to the repository ro
 | `noindex` everywhere outside production | same file, via `hugo.IsProduction` | look at any page under `hugo server` |
 | Open Graph + Twitter Card | `head/opengraph.html` | `og:image` is absolute and carries dimensions |
 | JSON-LD `@graph` | `head/schema.html` | the script element holds an **object**, not a string |
-| hreflang and `x-default` | `head/alternates.html` | every page has three `rel="alternate"` links |
+| hreflang and `x-default` | `head/alternates.html` | translated pages carry three (zh-CN / en-US / x-default); a page with no translation still carries a self-referential hreflang — taxonomy terms whose zh and en names differ, and content-adapter pages that exist in the default language only, genuinely have nothing to pair with |
 | Search-console verification, silent by default | `head/verification.html` | left empty, the tag is absent |
 | Landmarks and a skip link | `layouts/baseof.html`, `header`/`footer` | `skip-link`, `aria-current`, `<time datetime>` |
 | Print stylesheet | `assets/css/print.css` | in print preview the navigation disappears and external links gain their URL |
@@ -115,7 +118,7 @@ Convention: paths in the implementation column are relative to the repository ro
 
 | Feature | Implementation | Verification |
 | --- | --- | --- |
-| One content tree, `.en.md` pairing | `content/**/*.en.md` | every page carries three hreflang values |
+| One content tree, `.en.md` pairing | `content/**/*.en.md` | 39 bilingual pairs, 100% paired; a paired page carries three hreflang values |
 | Per-language menus | `config/_default/menus.zh-cn.toml`, `menus.en.toml` | the main menu differs by language |
 | i18n catalogue with identical key sets | `themes/hugo-scratch-theme/i18n/*.toml` | `--printI18nWarnings` stays silent |
 | Pluralised strings | `readingTime`, `pageCount` and friends | `T "key" <number>` |

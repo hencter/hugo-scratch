@@ -79,3 +79,21 @@ validateInternalLinks = true
 # The mermaid shortcode falls back to a highlighted code block while this is off.
 [mermaid]
   enabled = false
+
+# ---------------------------------------------------------------------------
+#  Upstream documentation hosts, per language.
+#
+#  The {{< docref >}} shortcode reads this table, which is what makes ONE
+#  shortcode call serve both language twins: a reader on the Chinese page gets
+#  hugozh.cn, and the same reader after switching language gets gohugo.io —
+#  the reference follows the language without the page being edited twice.
+#
+#  Paths are shared because the two sites are path-compatible: 26 of 26 sampled
+#  documentation paths returned 200 on both hosts. If one ever diverges, the
+#  shortcode takes a per-language override without changing the call shape:
+#      {{< docref "new/path/" zh="old/path/" >}}
+# ---------------------------------------------------------------------------
+[docs]
+  default = 'https://gohugo.io/'
+  [docs.hosts]
+    zh-cn = 'https://hugozh.cn/'

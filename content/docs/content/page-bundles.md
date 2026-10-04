@@ -97,3 +97,7 @@ content/
 ## 什么时候该拆包
 
 页面只有一张配图时，`content/blog/hello/index.md` 与 `cover.png` 同级就够了。图片要在多个页面复用、或者需要图片处理（缩放、裁剪、转格式）时，把它放进 `assets/`：`assets/` 里的资源**只在被引用时才发布**，而 `static/` 里的一切无论用不用都会复制进 `public/`。这条差别在图片多的站点上就是最终产物体积的差别。
+
+## 参考
+
+{{< docref "content-management/page-bundles/"  >}}

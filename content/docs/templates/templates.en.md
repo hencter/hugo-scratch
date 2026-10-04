@@ -113,3 +113,7 @@ The third trap is dates: `.Date` is a `time.Time` struct, so `with` is always tr
 - the parent reads the complete `tabTitles` and renders the tab buttons on the server in one pass — crawlers and readers without JavaScript see the whole component.
 
 This theme uses `partialCached` for nothing: any claim that it caches anything here is false. When a partial needs to share state, write it to `.Store`; when you genuinely need caching, reach for `partialCached`, but measure first that it saves something.
+
+## Reference
+
+{{< docref href="templates/introduction/" title="Templates" >}}

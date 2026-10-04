@@ -97,3 +97,7 @@ The other use for a branch bundle is setting values across a whole subtree, whic
 ## When to split a bundle
 
 When a page has a single companion image, `content/blog/hello/index.md` next to `cover.png` is enough. When an image is reused across pages, or needs processing — resizing, cropping, converting — put it in `assets/`. Resources in `assets/` are **published only when something references them**, whereas everything in `static/` is copied whether it is used or not. On an image-heavy site that difference is the size of the output directory.
+
+## Reference
+
+{{< docref "content-management/page-bundles/"  >}}

@@ -79,3 +79,7 @@ hugo --ignoreCache --panicOnWarning --printPathWarnings --printUnusedTemplates -
 1. **定位。** 代理先读 `AGENTS.md`，再读 `content/docs/start/quick-start.md` 的 front matter，确认要改的是哪一页、这一页的门槛和产出是什么。
 2. **落文件。** 改动落在 `content/docs/start/quick-start.md` 与 `content/docs/start/quick-start.en.md` 两个文件，标题层级和代码块两份保持一致。横幅写在 front matter 的 `notice` 字段里，不是正文里的自定义 HTML。如果这条规则本身在 `AGENTS.md` 里没写清，顺便把它补上——那是代理下一次会读的地方。
 3. **证明。** 跑严格构建拿到退出码 0；读 `public/docs/start/quick-start/index.html`，确认新句子和带 `class="banner"` 的提示条都在；再读 `public/docs/start/quick-start/index.md`，确认 Markdown 输出与页面一致；最后用 `hugo list all` 确认页数没变——一次纯内容改动不应该改变站点有多少页。
+
+## 同一个门禁，只有一份定义
+
+{{< include "build-gate" >}}

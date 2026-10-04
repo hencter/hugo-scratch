@@ -110,3 +110,7 @@ Written as `### A subsection {#custom-anchor}`; the render hook reads `.Attribut
 ## Typographer substitutions
 
 With `[markup.goldmark.extensions.typographer]` enabled, straight quotes become curly, `--` becomes – and `---` becomes —. If you ever need a literal straight quote or a run of hyphens, remember the substitution happens — which is why this repository spells out every substitution target in the config instead of leaving the block empty.
+
+## Reference
+
+{{< docref "content-management/syntax-highlighting/"  >}}

@@ -144,3 +144,7 @@ jobs:
 4. DNS 生效后回到 Pages 设置勾上 **Enforce HTTPS**。
 
 改完域名后重新跑一次严格构建，然后直接读 `public/sitemap.xml` 和任一页面的 `public/**/index.html`，确认 canonical 与 `og:url` 已经换成新域名——这一步比在浏览器里刷新更早发现问题。
+
+## 参考
+
+{{< docref href="host-and-deploy/host-on-github-pages/" title="Host on GitHub Pages" >}}

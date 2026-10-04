@@ -23,7 +23,7 @@ This section has two pages, and they are the precondition for everything after t
 
 A Hugo binary at 0.146 or newer — the floor the theme declares under `[module.hugoVersion]` — a copy of the repository with submodules, a terminal, and one `npm ci` (the Tailwind v4 CLI lives at the site root and only the stylesheet stage uses it). No Sass compiler is needed for the design system or the scripts: Hugo's `css.Build` and `js.Build` handle them entirely, and the fonts and images are plain static files.
 
-Hugo reports its own version with `hugo version`, so run it first. If it prints anything below 0.146, upgrade before going further. Below the floor the build fails while reading the module configuration, not on some page, so it looks as if the site itself is broken.
+Hugo reports its own version with `hugo version`, so run it first. If it prints anything below 0.146, upgrade before going further. Below the floor Hugo prints a `Module "hugo-scratch-theme" is not compatible with this Hugo version` warning and builds anyway, which is the easiest kind of problem to miss: a plain `hugo` will not stop you, while this repository's strict build will.
 
 ## What to verify once it runs
 

@@ -144,3 +144,7 @@ There is one difference pointing the other way: Netlify and Cloudflare Pages ser
 4. After DNS has propagated, tick **Enforce HTTPS** in the Pages settings.
 
 Once the domain is set up, run the strict build again and read `public/sitemap.xml` plus one page's `public/**/index.html` to confirm that canonical and `og:url` now carry the new domain. That catches the problem earlier than a browser refresh does.
+
+## Reference
+
+{{< docref href="host-and-deploy/host-on-github-pages/" title="Host on GitHub Pages" >}}

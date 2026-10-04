@@ -66,3 +66,7 @@ head -30 public/pages.json
 ```
 
 按顺序看四件事：`robots.txt` 里的 `Sitemap:` 是绝对地址；根 `sitemap.xml` 是索引且每个语言都列到了；`pages.json` 里每页都有 `url` 和 `markdown`；`search.json` 里能搜到你刚写的这一页。最后打开任一页面源码，确认 canonical、成对的 hreflang 和一段 JSON-LD 都在——四件事全过，站点对机器就是"可发现、可解析、可引用"的。
+
+## 参考
+
+{{< docref "templates/sitemap/"  >}}

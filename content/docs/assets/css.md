@@ -118,3 +118,8 @@ Tailwind 那一段不是 Hugo 自己实现的，它调用 npm 装在站点根目
 - `layouts/_partials/head.html` 把 `head/css.html` 放在延迟模板里调用：统计文件要等所有页面渲染完才存在，内联调用会拿上一次构建的数据去编译，干净克隆上直接失败。
 
 排查顺序和这张依赖表一致：页面完全没有颜色，先看 `public/css/bundle.min.<hash>.css` 有没有生成；只差 Tailwind 的工具类，先确认 `npm ci` 跑过、`hugo_stats.json` 存在；只有你新加的规则不生效，确认它写在 `custom.css` 或它导入的文件里；源文件和产物都对但浏览器还是旧的，指纹保证内容变化一定换文件名，所以先怀疑有东西缓存住了 HTML。
+
+## 参考
+
+{{< docref href="functions/css/" title="CSS functions" >}}
+{{< docref href="functions/css/tailwindcss/" title="Tailwind CSS" >}}

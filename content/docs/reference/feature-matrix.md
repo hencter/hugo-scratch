@@ -31,15 +31,15 @@ tags = ['参考', '特性']
 
 | 特性 | 实现位置 | 验证 |
 | --- | --- | --- |
-| 分支包 / 叶子包 / 无头包 | `content/docs/**`、`content/blog/*/index.md` | `hugo list all` |
+| 分支包 / 叶子包 / 无头包 | `content/docs/**`、`content/blog/*/index.md`；无头包 `content/snippets/build-gate/index.md` | `hugo list all`；无头包**不产生** `public/snippets/`，但它的文字会出现在引用它的页面上 |
 | 页面资源与图片处理 | `content/blog/hugo-pipes/cover.png` | 页面上图片带 `width`/`height` |
 | 内容适配器（从数据生成页面） | `content/changelog/_content.gotmpl` + `data/changelog.toml` | `public/changelog/v1-0-0/index.html` 存在 |
 | 三种分类法 | `[taxonomies]` = tag / category / series | `public/tags/`、`public/categories/`、`public/series/` |
 | 前置元数据字段契约 | `themes/hugo-scratch-theme/archetypes/docs.md` | `hugo new content docs/x.md` 会套用 |
-| 别名与重定向 | `aliases` 前置字段 | 生成的别名页是 `<meta http-equiv="refresh">` |
+| 别名与重定向 | `content/docs/start/quick-start.md` 的 `aliases`（页面从 `/docs/quick-start/` 搬到了 `/docs/start/quick-start/`） | `public/docs/quick-start/index.html` 是 `<meta http-equiv="refresh">`；注意 alias 路径相对站点根，语言前缀由 Hugo 补 |
 | 分页（每页 2 条，刻意调小） | `[pagination] pagerSize` | `public/blog/page/2/index.html` |
 | 按年分组的列表 | `content/blog/_index.md` 的 `groupByYear` | 博客列表出现 `<h2 id="year-2026">` |
-| 草稿 / 未来 / 过期与 `notice` 横幅 | `layouts/_partials/banner.html` | 给一页加 `notice = "…"` 再构建 |
+| 草稿 / 未来 / 过期与 `notice` 横幅 | `layouts/_partials/banner.html` | `notice = "…"` 立即生效；草稿、未来日期、`expiryDate` 三类页面会被 Hugo 排除，要分别用 `hugo -D` / `--buildFuture` / `--buildExpired` 才看得到横幅，`hugo list drafts`、`hugo list future`、`hugo list expired` 可先列出它们 |
 | 相对页面导航（上下页） | `layouts/_partials/page-nav.html` | 页脚的上一篇/下一篇 |
 
 ## 模板与渲染
@@ -53,6 +53,9 @@ tags = ['参考', '特性']
 | 内联 partial（`define` 写在 partial 里） | `layouts/_partials/sidebar.html` 等 | 侧栏树、菜单、目录、列表行都用这个模式 |
 | 短代码：标准记法（`.Inner` 是原文） | `layouts/_shortcodes/note.html` 等 | 见 [短代码](/docs/content/shortcodes/) |
 | 短代码：Markdown 记法（`.Inner` 已渲染） | `tabs.html` / `steps.html` / `columns.html` | 同上 |
+| 跨语言文档参考 | `layouts/_shortcodes/docref.html` + `[docs]` 配置 | 中文页指向 hugozh.cn、英文页指向 gohugo.io，**同一处调用**；切换语言后参考文档跟着切 |
+| 片段复用（无头包） | `include.html` + `content/snippets/` | `public/snippets/` 不存在，但片段文字出现在引用了它的两个页面上 |
+| 图标原语（一处决定尺寸） | `layouts/_partials/icon.html` + `.icon` 规则 | 去掉 `.icon` 规则，callout 的图标会撑满整个框 |
 | 短代码间共享 `.Store` | `tabs.html` 读、`tab.html` 写父级 store | 标签页按钮是服务端渲染出来的 |
 | 覆盖内置短代码 | `figure.html`、`youtube.html` | 站点的同名文件优先 |
 | 七个渲染钩子 | `layouts/_markup/render-*.html` | 见 [渲染钩子](/docs/content/render-hooks/) |
@@ -65,7 +68,7 @@ tags = ['参考', '特性']
 | 特性 | 实现位置 | 验证 |
 | --- | --- | --- |
 | 官方 Tailwind 集成（`css.TailwindCSS`） | `layouts/_partials/head/css.html` + `assets/css/tailwind.css` | 产物里能找到 `.mt-6`、`.flex` 等只用过一次的工具类 |
-| Tailwind 的扫描源是渲染结果 | `@source "hugo_stats.json"` | 改一个模板里的类名，重新构建后产物会变 |
+| Tailwind 的扫描源是渲染结果 | `@source "hugo_stats.json"` | 实测：本页用到的类同时也出现在被自动扫描的文件里，所以删掉这行产物字节不变。它真正覆盖的是**只存在于渲染结果里**的类（由插值拼出来的），那类名字自动扫描看不到 |
 | 分层（theme < components < utilities） | `head/css.html` 前置 `@layer` 声明 | 产物第一个 `@layer` 就是顺序声明 |
 | 显式跳过 Tailwind preflight | `assets/css/tailwind.css` 的注释与导入 | 列表仍有圆点；主题自带 reset 生效 |
 | 设计系统用 `css.Build` 合并 `@import` | `assets/css/design-system.css` | 产物只有一个 css 文件 |
@@ -105,7 +108,7 @@ tags = ['参考', '特性']
 | 非生产环境一律 noindex | 同文件，判断 `hugo.IsProduction` | `hugo server` 下看任意页面 |
 | Open Graph + Twitter Card | `head/opengraph.html` | `og:image` 是绝对地址且带宽高 |
 | JSON-LD `@graph` | `head/schema.html` | `<script type="application/ld+json">` 里是**对象**不是字符串 |
-| hreflang 与 `x-default` | `head/alternates.html` | 每页三条 `rel="alternate"` |
+| hreflang 与 `x-default` | `head/alternates.html` | 有译文的页面三条（zh-CN / en-US / x-default）；没有译文的页面至少有一条自指 hreflang —— 分类法词条的 zh / en 别名不同、内容适配器只生成默认语言，这两类页面本来就没有可配对的译文 |
 | 站长验证 meta（默认零输出） | `head/verification.html` | 留空时页面上没有该标签 |
 | 语义化地标与跳转链接 | `layouts/baseof.html`、`header/footer` | `skip-link`、`aria-current`、`<time datetime>` |
 | 打印样式表 | `assets/css/print.css` | 打印预览里导航消失、外链补出 URL |
@@ -115,7 +118,7 @@ tags = ['参考', '特性']
 
 | 特性 | 实现位置 | 验证 |
 | --- | --- | --- |
-| 单内容树 + `.en.md` 配对 | `content/**/*.en.md` | 页面上有三个 hreflang |
+| 单内容树 + `.en.md` 配对 | `content/**/*.en.md` | 39 对中英孪生页，配对率 100%；配对成功的页面带三个 hreflang |
 | 每语言菜单 | `config/_default/menus.zh-cn.toml`、`menus.en.toml` | 主菜单中英文不同 |
 | 词条表（两语言键必须一致） | `themes/hugo-scratch-theme/i18n/*.toml` | `--printI18nWarnings` 静默 |
 | 复数形式 | `readingTime`、`pageCount` 等键 | `T "key" 数字` |

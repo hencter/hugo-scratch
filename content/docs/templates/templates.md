@@ -109,3 +109,7 @@ tags = ['Hugo']
 `.Store` 是挂在页面或短代码上的临时存储，写一个键、读一个键，生命周期只到这次构建结束。`layouts/_shortcodes/tabs.html` 用它解决了一个真实问题：每个 `tab` 子短代码把 `{id, title}` 追加到 `$parent.Store` 的 `tabTitles` 键上，而嵌套短代码是**由内向外**渲染的，所以等父短代码执行时，所有子项的标题都已经写进去了；父短代码读到完整的 `tabTitles`，就能把标签按钮在服务端一次性渲染出来——爬虫和禁用 JavaScript 的读者看到的都是完整内容。
 
 这个主题没有用 `partialCached`：任何「缓存」的说法在这里都不成立。需要跨 partial 共享状态时就写进 `.Store`，需要缓存就自己用 `partialCached`，但先确认它真的省下了时间。
+
+## 参考
+
+{{< docref href="templates/introduction/" title="Templates" >}}

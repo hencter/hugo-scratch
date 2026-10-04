@@ -100,3 +100,7 @@ Run `hugo --ignoreCache` and look at `public/js/`: a changed filename hash means
 ## What this pipeline deliberately avoids
 
 Two things are worth stating plainly, because they are easy to import from other sites by habit. First, this part of the pipeline is not deferred: in `layouts/_partials/head.html` only the stylesheet sits inside `templates.Defer` (Tailwind has to wait for `hugo_stats.json` to be complete), while `head/js.html` is called directly — it emits its tag while `<head>` is parsed, and `defer` only decides when the script executes. Second, there is no front-end framework and no hydration — each module finds nodes, attaches a listener and sets an attribute, and the page is a readable, clickable document before the script loads. If you want an interactive component with a state tree, decide first whether it is worth breaking that premise.
+
+## Reference
+
+{{< docref href="functions/js/build/" title="js.Build" >}}

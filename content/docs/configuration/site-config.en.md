@@ -89,3 +89,7 @@ hugo --logLevel warn
 ```
 
 Warnings often explain more than errors do. To make the first warning fail the build outright, add `--panicOnWarning`, so a careless edit cannot sit unnoticed in the build log.
+
+## Reference
+
+{{< docref "configuration/"  >}}

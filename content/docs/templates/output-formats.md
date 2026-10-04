@@ -110,3 +110,7 @@ tags = ['Hugo']
 - `public/sitemap.xml` 是索引，`public/zh-cn/sitemap.xml` 才是逐页清单。
 
 想再加一种格式，顺序是：在主题里声明 `outputformats`，在站点 `[outputs]` 里挂到某类页面上，然后写一个 `{kind}.{name}.{suffix}` 模板。三处缺一，产物都不会出现。
+
+## 参考
+
+{{< docref "configuration/output-formats/"  >}}

@@ -43,9 +43,16 @@ hugo server     # http://localhost:1313/hugo-scratch/
 
 Already cloned without submodules? `git submodule update --init --recursive`.
 
-The submodule is not optional. Without it, `themes/hugo-scratch-theme` is an empty directory
-and every page fails with `found no layout file for "html" for kind "page"` — a message that
-names no cause.
+The submodule is not optional, and the way it fails does not look like a theme problem.
+Measured on this repository:
+
+- **cloned without `--recurse-submodules`** — the directory exists but is EMPTY, so the theme's
+  `hugo.toml` is missing and the build stops while loading the configuration:
+  `ERROR failed to create config: unknown output format "md" for kind "taxonomy"`.
+  The theme is where those output formats are declared, so a missing theme surfaces as a
+  *config* error that names no page at all.
+- **directory deleted entirely** — `ERROR failed to load modules: module
+  "hugo-scratch-theme" not found in "<path>"`.
 
 `npm ci` is not optional either. The Tailwind stage of the stylesheet runs a CLI installed by
 npm, not something Hugo ships. Without it the build stops with a missing `tailwindcss`
@@ -246,10 +253,13 @@ A violation fails the whole build, not one page.
 3. **`{{% %}}` shortcodes need `unsafe = true`.** Their output is re-parsed as Markdown. With
    `[markup.goldmark.renderer] unsafe` off, every panel is replaced by
    `<!-- raw HTML omitted -->`.
-4. **Never write shortcode syntax inside a standard-notation shortcode body.** The theme pipes
-   such a body through `markdownify`, and the second render pass sees your example as a real
-   call — you get `shortcode "x" must be closed or self-closed`. Put examples in ordinary
-   prose or in a code fence outside the callout.
+4. **Be careful with shortcode syntax inside a standard-notation shortcode body.** The theme
+   pipes such a body through `markdownify`, and that second render pass treats your example as
+   a real call. Which failure you get depends on the example: a SELF-CLOSING one such as
+   `{{</* badge "x" */>}}` quietly renders as a badge (probably not what you meant, but the
+   build passes), while one that needs a closing tag such as `{{</* tip "…" */>}}` aborts with
+   `failed to extract shortcode: shortcode "x" must be closed or self-closed`. Either way, put
+   examples in ordinary prose or in a code fence outside the callout.
 5. **Never mix a positional and a named parameter in one shortcode call.** `{{< badge "Beta"
    tone="accent" >}}` fails with `cannot mix named and positional parameters`. All positional
    or all named.
@@ -277,14 +287,14 @@ somewhere other than the cause.
 | `can't evaluate field TFoot in type tables.tableContext` | `.TFoot` does not exist on the 0.167 table render-hook context; a Markdown table has no footer |
 | `index of type string with args [map[…]]` | `dict … \| index $type` reverses the arguments; write `index (dict …) $type` |
 | `cannot mix named and positional parameters` | a shortcode call mixing `"value"` with `key="value"` |
-| `shortcode "x" must be closed or self-closed` | escaped shortcode syntax inside a standard-notation body that is `markdownify`-ed |
+| `shortcode "x" must be closed or self-closed` | an escaped example inside a standard-notation body that is `markdownify`-ed, when the example names a shortcode that needs a closing tag. A self-closing example renders instead of failing |
 | `Can't resolve 'tokens.css' in '<project root>'` | Tailwind resolves imports and `@source` relative to the **directory Hugo runs in**, not the stylesheet. Relative imports belong to `css.Build`; bare specifiers belong to Tailwind |
-| Tailwind utilities never generated | `hugo_stats.json` is gitignored, so Tailwind skips it unless `@source "hugo_stats.json"` names it |
+| Tailwind utilities never generated | measured: for the classes THIS site uses, deleting `@source "hugo_stats.json"` produces a byte-identical bundle, because every class also occurs literally in a file Tailwind auto-scans. Keep the line regardless — it is what covers a class that exists only in the rendered output, assembled by interpolation, which auto-scanning cannot see |
 | a utility loses to a component class | the `@layer` order statement must be the FIRST thing in the bundle; a mid-file statement is rewritten by the minifier |
 | `--cacheDir` must be absolute | it cannot be a relative path |
 | content adapter produced `/changelog/v1-0-0.en/` | content adapters create pages in the **default language only**; a language suffix in `path` becomes part of the URL. The English section renders the same data through the `{{< changelog >}}` shortcode instead |
 | a `.Date.Format` call fails on data | TOML dates arrive through `hugo.Data` as an untyped value; normalise with `time.AsTime` |
-| `hugo` output carries `noindex` | `hugo` **is** the production environment. Only `hugo server` (or `hugo -e development`) is development |
+| a build carries `noindex, nofollow` | the environment was not production. Plain `hugo` **is** production and emits `index, follow, …`; only `hugo server` and `hugo -e development` are development, and `layouts/robots.txt` disallows every crawler for the same reason |
 
 Deprecations that fail under `--panicOnWarning`, with their replacements:
 

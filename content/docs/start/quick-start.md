@@ -1,4 +1,7 @@
 +++
+# Alias paths are relative to the site root, and Hugo adds the language prefix
+# itself — so the English twin declares the same path and lands at /en/docs/quick-start/.
+aliases = ['/docs/quick-start/']
 title = '快速开始'
 linkTitle = '快速开始'
 description = '确认 Hugo 版本、带子模块克隆仓库、启动开发服务器，然后验证你看到的是对的页面。'
@@ -15,7 +18,7 @@ tags = ['Hugo']
 
 ## 开始之前
 
-你需要一个 Hugo 可执行文件，版本 **0.146 或更高**。这是主题自己声明的下限——`themes/hugo-scratch-theme/hugo.toml` 里的 `[module.hugoVersion]` 写着 `min = '0.146.0'`，低于它，Hugo 在读取模块配置时就会拒绝构建，报错不会指向任何一个页面，所以看起来像仓库坏了。构建本文档所用的版本是 {{< version >}}。
+你需要一个 Hugo 可执行文件，版本 **0.146 或更高**。这是主题自己声明的下限——`themes/hugo-scratch-theme/hugo.toml` 里的 `[module.hugoVersion]` 写着 `min = '0.146.0'`。低于它时 Hugo 会打出一条 `Module "hugo-scratch-theme" is not compatible with this Hugo version` 的**警告**，然后照常构建完成；所以裸 `hugo` 不会拦住你，而本仓库的严格构建（`--panicOnWarning`）会。构建本文档所用的版本是 {{< version >}}。
 
 除此之外还需要 `git`、一个文本编辑器，以及一次用来装依赖的网络访问。样式表分两段编译：主题的设计系统走 Hugo 内置的 `css.Build`（不需要 Node），Tailwind v4 那一段走官方集成 `css.TailwindCSS`，而它调用的是 npm 装在**站点根目录**的 Tailwind CLI——所以克隆之后要先 `npm ci`。脚本那一段始终由 Hugo 内置的 esbuild 打包，不需要额外工具。
 
@@ -81,10 +84,18 @@ hugo server
 
 - 首页有标题、导航栏、语言切换器，样式正常。如果只有纯文本，是主题没加载；如果布局对但配色不对，是样式表的问题，不是这一页要处理的范围。
 - 顶栏的"文档"能进入[文档](/docs/)首页，左侧栏出现章节列表。侧栏只对 `[params.nav] sidebarSections` 里列出的章节显示，`docs` 就在其中。
-- 打开 `content/docs/quick-start.md`，改一句正文并保存，浏览器应该自动刷新。热重载不生效的话，后面每次改动都要手动重启服务器。
+- 打开 `content/docs/start/quick-start.md`，改一句正文并保存，浏览器应该自动刷新。热重载不生效的话，后面每次改动都要手动重启服务器。
 
 想确认 Hugo 到底把哪些文件当成内容，用 `hugo list all` 打印清单；想确认某次改动是否影响构建，用 `hugo --logLevel warn` 做一次一次性构建。
 
 ## 接下来
 
 本地能跑之后，先读[目录结构](/docs/start/directory-structure/)，它标出了 `public/`、`resources/` 这些不该手改的目录。然后再读[配置](/docs/configuration/)，理解这个站点为什么不把 `hugo.toml` 放在根目录，以及主题、`_default`、环境配置三层是怎么合并的——后面每一页提到的配置项，出处都在那里。
+
+## 交付前的门禁
+
+{{< include "build-gate" >}}
+
+## 参考
+
+{{< docref "getting-started/"  >}}

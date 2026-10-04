@@ -110,3 +110,7 @@ $$ \int_{0}^{1} x^2 \, dx = \frac{1}{3} $$
 ## 排版替换（typographer）
 
 `[markup.goldmark.extensions.typographer]` 打开后，直引号会变成弯引号，`--` 变成 –，`---` 变成 —。写内容时如果非要字面的直引号或连续短横，记得它们是会被替换的——这就是为什么这个仓库的配置把替换目标逐项写清，而不是留空。
+
+## 参考
+
+{{< docref "content-management/syntax-highlighting/"  >}}

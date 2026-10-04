@@ -89,3 +89,7 @@ hugo --logLevel warn
 ```
 
 警告往往比错误更能说明问题。想让第一处警告直接变成失败，加上 `--panicOnWarning`，这样一次不小心的改动不会悄悄留在构建日志里。
+
+## 参考
+
+{{< docref "configuration/"  >}}
