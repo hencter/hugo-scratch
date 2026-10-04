@@ -1,0 +1,81 @@
+# ============================================================================
+#  params — site-level values the templates read
+# ----------------------------------------------------------------------------
+#  The theme ships a default for every key below, so a missing entry degrades to
+#  the theme's value rather than an error. Language-specific overrides live in
+#  languages.toml under [<lang>.params].
+#
+#  ⚠ Scalars first, tables after: a bare key written below a [table] header
+#    silently becomes a member of that table.
+# ============================================================================
+
+description = '一个把 Hugo 全部常用特性跑通的脚手架站点：语义化 HTML、完整 SEO 头、双语导航、客户端搜索、明暗主题、短代码、渲染钩子与 Hugo Pipes 构建的 CSS/JS 管线。'
+tagline = '把 Hugo 的每一条特性都用上'
+author = 'Hencter Lew'
+repoURL = 'https://github.com/hencter/hugo-scratch'
+editURL = 'https://github.com/hencter/hugo-scratch/edit/main/content'
+twitterHandle = ''
+# Social sharing fallback. Resolved through assets/ first, then static/.
+images = ['images/og-default.png']
+ogImageWidth = 1200
+ogImageHeight = 630
+titleSeparator = '·'
+dateFormat = '2006 年 1 月 2 日'
+
+# layouts/_markup/render-link.html warns (and, with --panicOnWarning, fails)
+# when a site-relative Markdown link resolves to no page. Turn it off if the site
+# links to routes that only exist after deployment.
+validateInternalLinks = true
+
+[ui]
+  stickyHeader = true
+  showBreadcrumbs = true
+  showTableOfContents = true
+  tocMinHeadings = 3
+  showSidebar = true
+  showReadingTime = true
+  showWordCount = true
+  showDate = true
+  showPrevNext = true
+  showRelated = true
+  showTags = true
+  showSearch = true
+  showThemeToggle = true
+  showLanguageSwitcher = true
+  showEditLink = true
+  showBackToTop = true
+
+[nav]
+  # Which top-level sections get the in-section sidebar.
+  sidebarSections = ['docs']
+
+[home]
+  # How many posts the home page lists.
+  latestCount = 3
+
+[seo]
+  # The language whose page is advertised as hreflang="x-default".
+  xDefaultLang = 'zh-cn'
+  organization = 'Hugo Scratch'
+  logo = 'images/logo.svg'
+  twitterCreator = ''
+
+# Search-console ownership verification. Both empty = no meta tag emitted at all.
+[verification]
+  # google = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
+  # bing = 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'
+
+# Off in the repository on purpose: layouts/_partials/analytics.html emits
+# nothing unless a value is set, and only in a production build.
+[analytics]
+  googleAnalytics = ''
+  plausibleDomain = ''
+
+[comments]
+  # Script-free default: the page links to a new issue in this repository.
+  # A site that wants a hosted provider overrides layouts/_partials/comments.html.
+  repository = 'hencter/hugo-scratch'
+
+# The mermaid shortcode falls back to a highlighted code block while this is off.
+[mermaid]
+  enabled = false

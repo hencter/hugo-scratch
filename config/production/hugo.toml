@@ -1,0 +1,19 @@
+# ============================================================================
+#  Production overrides
+# ----------------------------------------------------------------------------
+#  Everything in this directory is merged over config/_default/ when
+#  hugo.Environment == "production" — which is what a plain `hugo` sets. Use it
+#  for the switches that must never be on in a preview:
+#
+#    · analytics IDs (layouts/_partials/analytics.html also suppresses them
+#      outside production, so a `hugo server` session cannot skew the numbers);
+#    · [minify] minifyOutput = true — off in this repository so that the built
+#      HTML stays readable, which is what makes `grep public/` a usable check;
+#    · a different baseURL, for a site that publishes previews to a subpath.
+# ============================================================================
+
+[params]
+  [params.analytics]
+    # Fill in to switch analytics on for production only.
+    googleAnalytics = ''
+    plausibleDomain = ''

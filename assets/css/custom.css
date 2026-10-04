@@ -1,0 +1,27 @@
+/* ==========================================================================
+   custom.css — the SITE's stylesheet, concatenated after the theme's main.css
+   --------------------------------------------------------------------------
+   Why a separate file: `layouts/_partials/head/css.html` builds main.css and
+   custom.css and concatenates them. Theme and project assets merge at FILE
+   level, so a site that shipped its own assets/css/main.css would silently
+   replace the theme's entire stylesheet — and lose every fix in the next theme
+   update. Putting site tweaks in a differently-named file keeps the theme
+   upgradeable.
+
+   Everything here therefore overrides by cascade, never by editing the theme.
+   ========================================================================== */
+
+/* Slightly rounder cards than the theme default, to prove this file is loaded. */
+:root {
+  --radius-lg: 16px;
+}
+
+/* A denser tag cloud on the home page. */
+.home__block .tag-list {
+  gap: var(--space-1);
+}
+
+/* The home page leads with prose; give it a little more room. */
+.home__intro {
+  margin-bottom: var(--space-6);
+}

@@ -1,0 +1,49 @@
+# ============================================================================
+#  Main menu — English
+#  See menus.zh-cn.toml for why menus are per-language files.
+# ============================================================================
+
+[[main]]
+  name = 'Docs'
+  pageRef = '/docs'
+  weight = 10
+
+[[main]]
+  name = 'Blog'
+  pageRef = '/blog'
+  weight = 20
+
+[[main]]
+  name = 'Changelog'
+  pageRef = '/changelog'
+  weight = 30
+
+[[main]]
+  name = 'About'
+  pageRef = '/about'
+  weight = 40
+
+[[main]]
+  name = 'Hugo'
+  url = 'https://gohugo.io/'
+  weight = 90
+
+[[footer]]
+  name = 'Docs'
+  pageRef = '/docs'
+  weight = 10
+
+[[footer]]
+  name = 'Blog'
+  pageRef = '/blog'
+  weight = 20
+
+[[footer]]
+  name = 'Tags'
+  pageRef = '/tags'
+  weight = 30
+
+[[footer]]
+  name = 'About'
+  pageRef = '/about'
+  weight = 40

@@ -1,0 +1,14 @@
+# Hugo build output and caches — never commit these.
+public/
+resources/_gen/
+.hugo_build.lock
+
+# Written by [build] writeStats = true; consumed by Tailwind, not by Hugo.
+hugo_stats.json
+
+# Editor / OS noise
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp

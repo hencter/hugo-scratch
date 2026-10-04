@@ -1,0 +1,35 @@
+# ============================================================================
+#  Languages
+# ----------------------------------------------------------------------------
+#  Content is a SINGLE tree: `page.md` is the default language (zh-cn) and
+#  `page.en.md` is its English translation. Hugo pairs files that share a base
+#  name in the same directory, so .Translations / .AllTranslations and the
+#  language switcher work without duplicating the directory structure.
+#
+#  The alternative — content/zh-cn/** and content/en/** with a per-language
+#  `contentDir` — is what a large translation project wants. Mixing the two in
+#  one site is the mistake: Hugo pairs nothing and every page becomes monolingual.
+#
+#  `locale` (0.158+) is the BCP-47 tag used for <html lang>, hreflang and
+#  og:locale, and `label` is the name shown in the language switcher. Older Hugo
+#  spells these keys `languageCode` and `languageName`; ship one spelling, not both.
+# ============================================================================
+
+[zh-cn]
+  label = '简体中文'
+  locale = 'zh-CN'
+  weight = 1
+  title = 'Hugo Scratch'
+  [zh-cn.params]
+    # Explicit layout instead of the `:date_long` token: the localized date data
+    # does not cover every locale (zh-CN falls back to English), so a site that
+    # wants Chinese dates has to say so.
+    dateFormat = '2006 年 1 月 2 日'
+
+[en]
+  label = 'English'
+  locale = 'en-US'
+  weight = 2
+  title = 'Hugo Scratch'
+  [en.params]
+    dateFormat = 'January 2, 2006'

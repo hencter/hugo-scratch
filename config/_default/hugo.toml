@@ -1,0 +1,214 @@
+# ============================================================================
+#  hugo-scratch — main configuration
+# ----------------------------------------------------------------------------
+#  Precedence, lowest first:
+#     theme/hugo.toml (params, menu, outputformats, mediatypes only)
+#     config/_default/*.toml            ← this directory
+#     config/<hugo.Environment>/*.toml  ← config/production/ for a plain `hugo`
+#
+#  ⚠ TOP-LEVEL KEYS MUST COME BEFORE ANY [table] HEADER. In TOML a bare key
+#    written after a table header belongs to that table, so a `theme = [...]`
+#    line placed under [frontmatter] silently becomes frontmatter.theme and the
+#    site renders with no theme at all — reported only as
+#    "found no layout file for kind …".
+# ============================================================================
+
+baseURL = 'https://hencter.github.io/hugo-scratch/'
+title = 'Hugo Scratch'
+
+# BCP-47 tag of the default content language. Replaced `languageCode` in 0.158;
+# the per-language tags live in languages.toml.
+locale = 'zh-CN'
+defaultContentLanguage = 'zh-cn'
+# The default language is served from the site root, /en/ holds the other one.
+defaultContentLanguageInSubdir = false
+
+# Hugo reads .GitInfo (commit hash, author, subject) out of the repository, and
+# the [frontmatter] mapping below uses it as the lastmod source — so "last
+# updated" is a fact from the commit history instead of a field that ages badly.
+enableGitInfo = true
+enableRobotsTXT = true
+enableEmoji = true
+
+# Word counts, summaries and truncation behave correctly for Chinese/Japanese/Korean.
+hasCJKLanguage = true
+summaryLength = 70
+timeZone = 'Asia/Shanghai'
+
+# Multi-theme layering: left to right, decreasing precedence; the project's own
+# layouts/ always wins over every theme. A second theme here would be an overlay
+# (for example CJK typography) without forking this one.
+theme = ['hugo-scratch-theme']
+
+# ---------------------------------------------------------------------------
+#  Module mounts
+#  Declaring ANY mount replaces Hugo's default project mounts, which is why all
+#  seven are listed. Omitting one silently removes that component: drop
+#  "layouts" and the theme's templates stop being found.
+# ---------------------------------------------------------------------------
+[module]
+  [[module.mounts]]
+    source = 'content'
+    target = 'content'
+  [[module.mounts]]
+    source = 'static'
+    target = 'static'
+  [[module.mounts]]
+    source = 'assets'
+    target = 'assets'
+  [[module.mounts]]
+    source = 'layouts'
+    target = 'layouts'
+  [[module.mounts]]
+    source = 'i18n'
+    target = 'i18n'
+  [[module.mounts]]
+    source = 'data'
+    target = 'data'
+  [[module.mounts]]
+    source = 'archetypes'
+    target = 'archetypes'
+
+# ---------------------------------------------------------------------------
+#  Dates come from the repository.
+# ---------------------------------------------------------------------------
+[frontmatter]
+  lastmod = [':git', 'lastmod', 'date']
+  date = ['date', ':git']
+
+# ---------------------------------------------------------------------------
+#  Markup
+# ---------------------------------------------------------------------------
+[markup]
+  [markup.goldmark]
+    [markup.goldmark.renderer]
+      # Required for raw HTML in Markdown, and REQUIRED by this theme's
+      # markdown-notation shortcodes ({{% tabs %}}, {{% steps %}}, …): their
+      # output is re-parsed as Markdown, so without `unsafe` every panel is
+      # replaced with "raw HTML omitted".
+      unsafe = true
+    [markup.goldmark.parser]
+      # Definition-list terms get ids, so #anchor links into <dl> keep working.
+      autoDefinitionTermID = true
+      [markup.goldmark.parser.attribute]
+        block = true
+        title = true
+    [markup.goldmark.extensions]
+      [markup.goldmark.extensions.typographer]
+        enable = true
+        leftSingleQuote = '&lsquo;'
+        rightSingleQuote = '&rsquo;'
+        leftDoubleQuote = '&ldquo;'
+        rightDoubleQuote = '&rdquo;'
+        enDash = '&ndash;'
+        emDash = '&mdash;'
+        ellipsis = '&hellip;'
+      [markup.goldmark.extensions.passthrough]
+        # $$…$$ and \[…\] stay untouched for a client-side maths renderer;
+        # layouts/_markup/render-passthrough.html wraps them in the meantime.
+        enable = true
+        [markup.goldmark.extensions.passthrough.delimiters]
+          block = [['\[', '\]'], ['$$', '$$']]
+          inline = [['\(', '\)']]
+  [markup.highlight]
+    # Class-based output: the colours then come from assets/css/chroma-*.css and
+    # can follow the light/dark switch. Inline styles could not.
+    noClasses = false
+    lineNos = false
+    tabWidth = 2
+  [markup.tableOfContents]
+    startLevel = 2
+    endLevel = 3
+
+# ---------------------------------------------------------------------------
+#  Taxonomies. Hugo generates /tags/ and /categories/ from these even when no
+#  page uses them; `series` is a third, custom one.
+# ---------------------------------------------------------------------------
+[taxonomies]
+  tag = 'tags'
+  category = 'categories'
+  series = 'series'
+
+# Deliberately small so pagination is visible in this demo. A real site wants 10+.
+[pagination]
+  pagerSize = 2
+
+# ---------------------------------------------------------------------------
+#  Output formats.
+#  The formats themselves (md, llms, search, pagesjson) are declared by the
+#  THEME; a theme may only contribute params, menu, outputformats and mediatypes,
+#  so which pages produce them is the site's decision — that is this table.
+# ---------------------------------------------------------------------------
+[outputs]
+  home = ['html', 'rss', 'md', 'llms', 'search', 'pagesjson']
+  section = ['html', 'rss', 'md']
+  taxonomy = ['html', 'rss', 'md']
+  term = ['html', 'rss', 'md']
+  page = ['html', 'md']
+
+[sitemap]
+  changefreq = 'weekly'
+  priority = 0.5
+
+# Feed throttling: the whole site in one RSS file is a 2 MB download nobody asked for.
+[services]
+  [services.rss]
+    limit = 20
+
+[imaging]
+  # `quality` as a top-level key is deprecated since 0.163 — quality is per format.
+  resampleFilter = 'Lanczos'
+  [imaging.jpeg]
+    quality = 82
+  [imaging.webp]
+    quality = 82
+  [imaging.exif]
+    disableLatLong = true
+
+# `hugo server` development-server headers — a cheap way to keep previews honest.
+[server]
+  [[server.headers]]
+    for = '**'
+    [server.headers.values]
+      X-Content-Type-Options = 'nosniff'
+      Referrer-Policy = 'strict-origin-when-cross-origin'
+
+# Remote fetch caching. The cache names are fixed by Hugo — `hugo config` lists
+# them (assets, getresource, images, misc, modules, modulegitinfo, modulequeries);
+# an unknown name such as the older `getjson` aborts the build with
+# "is not a valid cache name".
+[caches]
+  [caches.getresource]
+    maxAge = '10m'
+
+# Only HUGO_-prefixed environment variables may be read by templates.
+[security]
+  [security.funcs]
+    getenv = ['^HUGO_']
+
+# Read by the youtube shortcode override: it links to the no-cookie host instead
+# of embedding a player that contacts YouTube before the reader asked for it.
+[privacy]
+  [privacy.youtube]
+    privacyEnhanced = true
+  [privacy.googleAnalytics]
+    disable = true
+
+# ---------------------------------------------------------------------------
+#  Site-wide cascade. `target` selects the pages; the rest is merged into their
+#  front matter. The values land in sitemap.xml through .Sitemap.ChangeFreq.
+#  (The older spelling of this key, `_target`, is deprecated since 0.156.)
+# ---------------------------------------------------------------------------
+[[cascade]]
+  [cascade.sitemap]
+    changefreq = 'daily'
+    priority = 0.9
+  [cascade.target]
+    path = '/blog/**'
+
+[[cascade]]
+  [cascade.sitemap]
+    changefreq = 'yearly'
+    priority = 0.2
+  [cascade.target]
+    path = '/legal/**'

@@ -1,0 +1,60 @@
+# ============================================================================
+#  Main menu — Simplified Chinese
+# ----------------------------------------------------------------------------
+#  Menus live in PER-LANGUAGE files rather than being translated through the i18n
+#  catalogue. Two reasons:
+#    · a menu label is navigation, not a string inside a template, and a missing
+#      i18n key would emit an MISSING_TRANSLATION warning on every page;
+#    · an English site usually reorders or replaces entries instead of translating
+#      them one for one.
+#
+#  `pageRef` associates the entry with a page: it survives a URL change, and it
+#  is what makes IsMenuCurrent / HasMenuCurrent (and therefore the active state)
+#  work. Use `url` only for targets outside the site.
+# ============================================================================
+
+[[main]]
+  name = '文档'
+  pageRef = '/docs'
+  weight = 10
+
+[[main]]
+  name = '博客'
+  pageRef = '/blog'
+  weight = 20
+
+[[main]]
+  name = '更新日志'
+  pageRef = '/changelog'
+  weight = 30
+
+[[main]]
+  name = '关于'
+  pageRef = '/about'
+  weight = 40
+
+[[main]]
+  name = 'Hugo 官网'
+  url = 'https://gohugo.io/'
+  weight = 90
+
+# Footer menu: rendered from the same menu machinery, in its own column.
+[[footer]]
+  name = '文档'
+  pageRef = '/docs'
+  weight = 10
+
+[[footer]]
+  name = '博客'
+  pageRef = '/blog'
+  weight = 20
+
+[[footer]]
+  name = '标签'
+  pageRef = '/tags'
+  weight = 30
+
+[[footer]]
+  name = '关于'
+  pageRef = '/about'
+  weight = 40
