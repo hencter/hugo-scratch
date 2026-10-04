@@ -1,13 +1,21 @@
 # ============================================================================
 #  Deploy to GitHub Pages
 # ----------------------------------------------------------------------------
-#  A GitHub Pages PROJECT site: the repository publishes to
-#  https://<owner>.github.io/<repo>/, and `baseURL` in config/_default/hugo.toml
-#  already carries that subpath, so every canonical URL, Open Graph tag and
-#  sitemap entry is correct without extra flag juggling.
+#  The site is published on the custom domain configured under
+#  Settings → Pages (here: https://scratch.hugozh.cn/), which serves it from
+#  the ROOT of that host, so no generated URL carries a subpath.
+#
+#  `--baseURL` below takes the address from the Pages API instead of from the
+#  config file, so a deployed build always matches the domain the repository is
+#  actually configured with: the custom domain when one is set, and otherwise
+#  the project-site address https://<owner>.github.io/<repo>/ with its subpath.
+#  The value in config/_default/hugo.toml is what local and CI builds use, and
+#  the two must describe the same site — a mismatch shows up as 404s for the
+#  stylesheet and the scripts, not as a build error.
 #
 #  Repository settings this workflow assumes: Settings → Pages → Source =
-#  "GitHub Actions". No gh-pages branch is used and no CNAME file is needed.
+#  "GitHub Actions", plus the custom domain. No gh-pages branch is used and no
+#  CNAME file is needed.
 #
 #  The build is the same strict build CI runs, so a warning stops the deploy
 #  rather than publishing a page with a dead link.
@@ -67,13 +75,7 @@ jobs:
         uses: actions/configure-pages@v6
 
       - name: Strict build
-        run: |
-          hugo --ignoreCache \
-               --panicOnWarning \
-               --printPathWarnings \
-               --printUnusedTemplates \
-               --printI18nWarnings \
-               --baseURL "${{ steps.pages.outputs.base_url }}/"
+        run: npm run build -- --baseURL "${{ steps.pages.outputs.base_url }}/"
 
       - name: Upload the site
         uses: actions/upload-pages-artifact@v5

@@ -59,12 +59,7 @@ jobs:
           hugo version
 
       - name: Strict build
-        run: |
-          hugo --ignoreCache \
-               --panicOnWarning \
-               --printPathWarnings \
-               --printUnusedTemplates \
-               --printI18nWarnings
+        run: npm run build
 
       # The audit surfaces two classes of problem that are silent by default:
       # leaked shortcode placeholders and missing-translation placeholders.
