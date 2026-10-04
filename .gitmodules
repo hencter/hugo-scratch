@@ -1,0 +1,3 @@
+[submodule "themes/hugo-scratch-theme"]
+	path = themes/hugo-scratch-theme
+	url = https://github.com/hencter/hugo-scratch-theme.git
