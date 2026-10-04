@@ -1,0 +1,39 @@
+{{- /*
+  Content adapter for /changelog/.
+
+  A content adapter is a Go template that CREATES pages at build time. It is the
+  right tool when the pages are a projection of structured data: there is no
+  Markdown file per release, so the list and the pages cannot disagree, and
+  adding a release means editing one TOML entry.
+
+  Contract (https://gohugo.io/content-management/content-adapters/):
+    · the file lives in the content directory it generates pages for;
+    · `$.AddPage` receives a dict; `path` is relative to that directory and has
+      no extension;
+    · `content` is a dict of `mediaType` + `value`, so the body is ordinary
+      Markdown and is rendered exactly like any other page.
+
+  ⚠ OBSERVED LIMITATION: an adapter creates pages in the DEFAULT content language
+  only. Giving `path` a language suffix does not create a translation — it
+  creates a page whose URL literally contains the suffix
+  (`/changelog/v1-0-0.en/`), which was verified by reading the built tree. The
+  English section therefore renders the same data through the {{< changelog >}}
+  shortcode instead of linking across languages.
+*/ -}}
+{{- $releases := hugo.Data.changelog.releases -}}
+
+{{- range $releases -}}
+  {{- $slug := replace .version "." "-" -}}
+  {{- $notes := slice -}}
+  {{- range .notes }}{{ $notes = $notes | append (printf "- %s" .) }}{{ end -}}
+  {{- $body := printf "## %s\n\n%s\n" .title (delimit $notes "\n") -}}
+
+  {{- $.AddPage (dict
+        "path"        $slug
+        "kind"        "page"
+        "title"       (printf "%s — %s" .version .title)
+        "description" .title
+        "date"        .date
+        "params"      (dict "version" .version)
+        "content"     (dict "mediaType" "text/markdown" "value" $body)) -}}
+{{- end -}}

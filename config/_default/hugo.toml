@@ -41,10 +41,35 @@ timeZone = 'Asia/Shanghai'
 theme = ['hugo-scratch-theme']
 
 # ---------------------------------------------------------------------------
+#  Build
+#  buildStats writes hugo_stats.json: the list of HTML elements and CSS class
+#  names that actually appeared in the rendered output. Tailwind CSS reads it
+#  instead of guessing, which is what makes utility detection exact rather than
+#  a grep over templates.
+#
+#  The cachebuster is not decoration: without it, editing a template that only
+#  changes a class name would not invalidate the built stylesheet, and the new
+#  utility would silently never be generated.
+# ---------------------------------------------------------------------------
+[build]
+  [build.buildStats]
+    enable = true
+  [[build.cachebusters]]
+    source = 'assets/notwatching/hugo_stats\.json'
+    target = 'css'
+  [[build.cachebusters]]
+    source = '(postcss|tailwind)\.config\.(js|mjs|cjs)'
+    target = 'css'
+
+# ---------------------------------------------------------------------------
 #  Module mounts
 #  Declaring ANY mount replaces Hugo's default project mounts, which is why all
-#  seven are listed. Omitting one silently removes that component: drop
+#  of them are listed. Omitting one silently removes that component: drop
 #  "layouts" and the theme's templates stop being found.
+#
+#  The last mount exposes hugo_stats.json to the asset pipeline under a
+#  "notwatching" prefix, so the file watcher does not rebuild the site in a loop
+#  every time the statistics are written.
 # ---------------------------------------------------------------------------
 [module]
   [[module.mounts]]
@@ -68,6 +93,10 @@ theme = ['hugo-scratch-theme']
   [[module.mounts]]
     source = 'archetypes'
     target = 'archetypes'
+  [[module.mounts]]
+    disableWatch = true
+    source = 'hugo_stats.json'
+    target = 'assets/notwatching/hugo_stats.json'
 
 # ---------------------------------------------------------------------------
 #  Dates come from the repository.
@@ -140,7 +169,7 @@ theme = ['hugo-scratch-theme']
 #  so which pages produce them is the site's decision — that is this table.
 # ---------------------------------------------------------------------------
 [outputs]
-  home = ['html', 'rss', 'md', 'llms', 'search', 'pagesjson']
+  home = ['html', 'rss', 'md', 'llms', 'search', 'pages']
   section = ['html', 'rss', 'md']
   taxonomy = ['html', 'rss', 'md']
   term = ['html', 'rss', 'md']
@@ -181,10 +210,18 @@ theme = ['hugo-scratch-theme']
   [caches.getresource]
     maxAge = '10m'
 
-# Only HUGO_-prefixed environment variables may be read by templates.
+# Only HUGO_-prefixed environment variables may be read by templates, and the
+# commands Hugo is allowed to run are listed explicitly.
+#
+# ⚠ Setting security.exec.allow REPLACES the default list rather than extending
+#   it, so the defaults are repeated here with `tailwindcss` added — which is
+#   what the official Tailwind integration requires. `hugo config` prints the
+#   defaults if they change in a future release.
 [security]
   [security.funcs]
     getenv = ['^HUGO_']
+  [security.exec]
+    allow = ['^(dart-)?sass$', '^go$', '^git$', '^node$', '^postcss$', '^tailwindcss$']
 
 # Read by the youtube shortcode override: it links to the no-cookie host instead
 # of embedding a player that contacts YouTube before the reader asked for it.

@@ -1,0 +1,352 @@
+# AGENTS.md — the working contract for this repository
+
+> 中文速览：**先 `npm ci`，再 `hugo server`**。改动内容只碰 `content/`，改动版式只碰
+> `themes/hugo-scratch-theme/`。交付前必须跑通下面那条严格构建，并去 `public/` 里读产物
+> 确认页面真的渲染了。`public/`、`resources/`、`hugo_stats.json` 是**产物**，永远不要手改。
+> 详细的坑与约定都在本文件里，不需要再查别处。
+
+This file is the single source of truth for working on this repository. It is written for an
+agent that has to make a change and prove it. If something here disagrees with another
+document, this file wins — and please fix the other document.
+
+---
+
+## 1. What this repository is
+
+A bilingual (Simplified Chinese at `/`, English at `/en/`) Hugo site that uses the broad
+common Hugo feature set on purpose, plus a **separate theme repository** wired in as a git
+submodule at `themes/hugo-scratch-theme`.
+
+| | |
+| --- | --- |
+| Site repository | `https://github.com/hencter/hugo-scratch` |
+| Theme repository | `https://github.com/hencter/hugo-scratch-theme` |
+| Published site | `https://hencter.github.io/hugo-scratch/` |
+| Hugo floor | 0.146.0 (declared by the theme's `[module.hugoVersion]`) |
+| Verified with | Hugo 0.167.0, **standard and extended** |
+| Bilingual | `page.md` is zh-cn, `page.en.md` is its English twin |
+
+`baseURL` is `https://hencter.github.io/hugo-scratch/` — a GitHub Pages **project** site — so
+every generated URL carries the `/hugo-scratch/` prefix. Change `baseURL` and the prefix
+changes with it.
+
+---
+
+## 2. Run it
+
+```bash
+git clone --recurse-submodules https://github.com/hencter/hugo-scratch.git
+cd hugo-scratch
+npm ci          # the Tailwind v4 CLI lives at the site root; the build needs it
+hugo server     # http://localhost:1313/hugo-scratch/
+```
+
+Already cloned without submodules? `git submodule update --init --recursive`.
+
+The submodule is not optional. Without it, `themes/hugo-scratch-theme` is an empty directory
+and every page fails with `found no layout file for "html" for kind "page"` — a message that
+names no cause.
+
+`npm ci` is not optional either. The Tailwind stage of the stylesheet runs a CLI installed by
+npm, not something Hugo ships. Without it the build stops with a missing `tailwindcss`
+executable, and again the message names no page.
+
+---
+
+## 3. The gate: one command, and only exit 0 counts
+
+```bash
+hugo --ignoreCache --panicOnWarning --printPathWarnings --printUnusedTemplates --printI18nWarnings
+```
+
+Run it from the repository root before claiming any change is done. Each flag blocks a class
+of defect that is otherwise invisible:
+
+| Flag | What it catches |
+| --- | --- |
+| `--panicOnWarning` | the first WARNING becomes a failure: deprecated config keys and template methods, render-hook warnings |
+| `--printPathWarnings` | two pages writing to the same output path (one silently overwrites the other) |
+| `--printUnusedTemplates` | a template nothing reaches — usually a shortcode or render hook written but never called |
+| `--printI18nWarnings` | a translation key used by a template but missing from a language file |
+| `--ignoreCache` | rules out a stale file cache when a result makes no sense |
+
+The render hooks add two more failures the flags cannot express on their own: a site-relative
+Markdown link that resolves to no page, and an image that exists in none of the page bundle,
+`assets/` or `static/`.
+
+**The build output is the evidence.** A page rendered only if the directory exists:
+
+```
+public/docs/start/quick-start/index.html      # the rendered page
+public/docs/start/quick-start/index.md        # its Markdown twin
+public/en/docs/start/quick-start/index.html   # the English twin
+```
+
+A silent console does not mean a page rendered. `hugo list all` prints the content inventory
+when the page count looks wrong.
+
+Before publishing, the documentation also recommends the site audit, which surfaces problems
+that are silent by default:
+
+```bash
+HUGO_MINIFY_TDEWOLFF_HTML_KEEPCOMMENTS=true HUGO_ENABLEMISSINGTRANSLATIONPLACEHOLDERS=true hugo --ignoreCache
+grep -rn "HAHAHUGO" public/            # leaked shortcode placeholders (prefix only, see §7)
+grep -rn "MISSING_TRANSLATION" public/ # missing-translation placeholders
+grep -rn "raw HTML omitted" public/    # HTML discarded because unsafe was off
+```
+
+### Building in parallel
+
+Two agents must not build into the same directories. Isolate both the destination and the
+cache, and note that `--cacheDir` must be an absolute path:
+
+```bash
+hugo -d .verify-a --cacheDir "D:/Projects/.hugo-cache-a" --ignoreCache --logLevel warn
+```
+
+`.verify*` and `.hugo-cache*` are gitignored.
+
+---
+
+## 4. Where things live
+
+```
+hugo-scratch/
+├── AGENTS.md                  ← you are here
+├── README.md                  human-facing overview
+├── package.json               tailwindcss + @tailwindcss/cli (the only npm deps)
+├── config/
+│   ├── _default/              hugo.toml, languages.toml, params.toml, menus.<lang>.toml
+│   └── production/            environment overrides, merged when hugo.Environment == production
+├── content/                   one tree, both languages (.en.md suffix)
+├── data/changelog.toml        source data for the /changelog/ content adapter
+├── assets/css/custom.css      the SITE's stylesheet overrides (theme stays untouched)
+└── themes/hugo-scratch-theme/ the theme (git submodule, its own repository)
+```
+
+The theme owns the design system, the templates and the shortcodes:
+
+```
+themes/hugo-scratch-theme/
+├── hugo.toml                  params, outputformats, mediatypes (the only keys a theme may set)
+├── assets/css/                design-system.css, tailwind.css, tokens.css, …
+├── assets/js/                 main.js + modules/
+├── i18n/                      en.toml, zh-cn.toml — identical key sets
+├── static/                    favicon, apple-touch-icon, webmanifest, logo
+└── layouts/
+    ├── baseof.html            the document contract
+    ├── home|page|section|taxonomy|term|404.html
+    ├── list.md, page.md       Markdown output formats
+    ├── home.llms.txt, home.search.json, home.pages.json
+    ├── rss.xml, sitemap.xml, robots.txt
+    ├── _partials/             head/, layout/, and the components
+    ├── _shortcodes/           one file per shortcode
+    └── _markup/               render-*.html, one per element kind
+```
+
+**Never edit**: `public/`, `resources/`, `.hugo_build.lock`, `hugo_stats.json`. They are
+output or state; editing them is overwritten or makes the next build self-contradictory.
+
+---
+
+## 5. Use Hugo's own commands instead of guessing
+
+Do not state a key, flag or default from memory. Ask the binary:
+
+```bash
+hugo version      # which behaviour applies
+hugo config       # effective settings, defaults included
+hugo list all     # the content inventory
+hugo gen doc --dir .hugo-doc          # CLI reference for THIS version
+hugo gen chromastyles --help          # regenerate the code-colour stylesheets
+hugo env          # build/runtime information
+```
+
+`hugo config` in particular settles every argument about whether a key exists, what its
+default is, and whether a theme-provided value survived. It is also where the valid
+`[caches]` names appear — the older `getjson` is gone and aborts the build with
+`"getjson" is not a valid cache name`.
+
+---
+
+## 6. Content contract
+
+### Front matter — documentation page
+
+```toml
++++
+title = 'Full title'
+linkTitle = 'Short title for the sidebar'
+description = 'One sentence: what problem does this page solve?'
+date = 2026-02-14
+weight = 20
+difficulty = 'beginner'        # beginner | intermediate | advanced
+estimatedTime = 12             # minutes
+prerequisites = ['/docs/start/']
+outcomes = ['…', '…']
+tags = ['Hugo']
++++
+```
+
+Facts live in the front matter, not in prose, because four consumers read them: the on-page
+facts panel, the sidebar, `pages.json`, and the `.md` twin. An agent can decide whether to
+follow a page or look a fact up without fetching the HTML.
+
+### Rules
+
+- Body starts at `##`. The template renders the `<h1>`; a second level-one heading gives the
+  page two competing top-level headings.
+- `weight` must be unique inside its section, spaced by 10. Section weights: `docs` 10,
+  `start` 10, `configuration` 20, `content` 30, `templates` 40, `assets` 50, `seo` 60,
+  `deploy` 70, `agents` 80, `reference` 90, `blog` 20, `changelog` 30, `legal` 90.
+- Internal links are root-relative **without** the `/hugo-scratch/` prefix (`/docs/start/`)
+  and must resolve to a real page. A link that does not resolve fails the strict build.
+  `prerequisites` entries are page paths too.
+- Every page has a twin. The English file is the same directory and base name plus `.en`:
+  `quick-start.md` ↔ `quick-start.en.md`, `_index.md` ↔ `_index.en.md`,
+  `index.md` ↔ `index.en.md`. Keep heading structure, shortcode calls and code blocks in step.
+- Per-language menus are config, not i18n: `config/_default/menus.zh-cn.toml` and
+  `menus.en.toml`. Menu labels are deliberately NOT passed through `T`, because a missing key
+  would warn on every page.
+
+---
+
+## 7. The iron rules of authoring
+
+A violation fails the whole build, not one page.
+
+1. **Never leave an unescaped shortcode delimiter in prose or inside a code fence.** To *show*
+   shortcode syntax, escape it:
+   `{{</* note */>}}` … `{{</* /note */>}}`, `{{%/* tabs */%}}` … `{{%/* /tabs */%}}`,
+   closing forms `{{</* /name */>}}` and `{{%/* /name */%}}`.
+   To show the escape itself: `{{</*/* note */*/>}}`.
+2. **Never write Hugo's shortcode placeholder prefix in full.** The literal string aborts
+   rendering with `illegal state in content; shortcode token missing end delim`, attributed to
+   whichever page happens to be rendering — not necessarily the page containing it. That is
+   why the audit grep in §3 searches only the prefix.
+3. **`{{% %}}` shortcodes need `unsafe = true`.** Their output is re-parsed as Markdown. With
+   `[markup.goldmark.renderer] unsafe` off, every panel is replaced by
+   `<!-- raw HTML omitted -->`.
+4. **Never write shortcode syntax inside a standard-notation shortcode body.** The theme pipes
+   such a body through `markdownify`, and the second render pass sees your example as a real
+   call — you get `shortcode "x" must be closed or self-closed`. Put examples in ordinary
+   prose or in a code fence outside the callout.
+5. **Never mix a positional and a named parameter in one shortcode call.** `{{< badge "Beta"
+   tone="accent" >}}` fails with `cannot mix named and positional parameters`. All positional
+   or all named.
+6. **Do not put a glob containing `*/` inside a Go template comment.** `public/*/index.html`
+   ends the comment early and the template fails to parse with
+   `comment ends before closing delimiter`.
+7. **`{{ with .Date }}` is always true.** `.Date` is a struct, so an undated page happily
+   prints `0001-01-01`. Guard with `.IsZero`. Print machine-readable dates as
+   `<time datetime="…">` holding ISO 8601, whatever the visible text says.
+
+---
+
+## 8. Traps this repository actually hit
+
+Each of these cost a real debugging cycle. They are recorded because the error message points
+somewhere other than the cause.
+
+| Symptom | Real cause |
+| --- | --- |
+| `found no layout file for "html" for kind "page"` | the theme submodule is not checked out |
+| `frontmatter.theme` silently ignored, no theme applied | a bare TOML key written **below** a `[table]` header — it joins that table. Scalars first, tables after |
+| `"getjson" is not a valid cache name` | the cache was renamed; `hugo config` lists the current names |
+| `illegal state in content; shortcode token missing end delim` | the shortcode placeholder prefix appears literally in content |
+| `comment ends before closing delimiter` | a `*/` sequence inside a Go template comment |
+| `can't evaluate field TFoot in type tables.tableContext` | `.TFoot` does not exist on the 0.167 table render-hook context; a Markdown table has no footer |
+| `index of type string with args [map[…]]` | `dict … \| index $type` reverses the arguments; write `index (dict …) $type` |
+| `cannot mix named and positional parameters` | a shortcode call mixing `"value"` with `key="value"` |
+| `shortcode "x" must be closed or self-closed` | escaped shortcode syntax inside a standard-notation body that is `markdownify`-ed |
+| `Can't resolve 'tokens.css' in '<project root>'` | Tailwind resolves imports and `@source` relative to the **directory Hugo runs in**, not the stylesheet. Relative imports belong to `css.Build`; bare specifiers belong to Tailwind |
+| Tailwind utilities never generated | `hugo_stats.json` is gitignored, so Tailwind skips it unless `@source "hugo_stats.json"` names it |
+| a utility loses to a component class | the `@layer` order statement must be the FIRST thing in the bundle; a mid-file statement is rewritten by the minifier |
+| `--cacheDir` must be absolute | it cannot be a relative path |
+| content adapter produced `/changelog/v1-0-0.en/` | content adapters create pages in the **default language only**; a language suffix in `path` becomes part of the URL. The English section renders the same data through the `{{< changelog >}}` shortcode instead |
+| a `.Date.Format` call fails on data | TOML dates arrive through `hugo.Data` as an untyped value; normalise with `time.AsTime` |
+| `hugo` output carries `noindex` | `hugo` **is** the production environment. Only `hugo server` (or `hugo -e development`) is development |
+
+Deprecations that fail under `--panicOnWarning`, with their replacements:
+
+| Deprecated | Use |
+| --- | --- |
+| `.Page.IsNode` | `.IsPage` / `.IsBranch` |
+| `.Site.Data` | `hugo.Data` |
+| `.Site.Sites` / `.Page.Sites` | `hugo.Sites` |
+| `.Language.LanguageName` | `.Language.Label` |
+| `languageCode` / `languageName` | `locale` / `label` |
+| `cascade._target` | `cascade.target` |
+| `build._build` | `build` with `list` / `render` / `publishResources` |
+| `imaging.quality` | `imaging.jpeg.quality`, `imaging.webp.quality`, … |
+
+---
+
+## 9. Common tasks
+
+**Add a documentation page.** Create the pair, then build and read `public/`.
+
+```bash
+hugo new content docs/configuration/foo.md       # uses the theme's docs archetype
+# write content/docs/configuration/foo.en.md with the same shape
+hugo --ignoreCache --panicOnWarning --printPathWarnings --printUnusedTemplates --printI18nWarnings
+```
+
+Give it a unique `weight` in its section. If it should appear in the sidebar of another
+section, add that section to `[params.nav] sidebarSections`.
+
+**Add a shortcode.** `themes/hugo-scratch-theme/layouts/_shortcodes/<name>.html`. Decide the
+notation first: `{{< >}}` runs after the Markdown renderer (`.Inner` is raw text — call
+`markdownify`), `{{% %}}` runs before it (`.Inner` is rendered HTML, and its headings reach the
+table of contents). Then **call it from exactly one page**, or `--printUnusedTemplates` fails
+the build.
+
+**Add a render hook.** `themes/hugo-scratch-theme/layouts/_markup/render-<element>.html`. The
+directory is `_markup`; a file in the wrong place is never called and never reported.
+
+**Override something from the site.** Put a file of the same path under the site's `layouts/`,
+`assets/` or `static/`. Theme and project merge at FILE level, so a same-named file *replaces*
+the theme's — which is why the site's stylesheet is `assets/css/custom.css` and not
+`design-system.css`.
+
+**Add a machine-readable output.** Declare the format in the theme's `hugo.toml` (only
+`params`, `menu`, `outputformats`, `mediatypes` are honoured there), switch it on in the site's
+`[outputs]`, and add the template named `<kind>.<format>.<suffix>` — for example
+`home.search.json`. Set `notAlternative = true` to keep it out of `rel="alternate"`.
+
+**Change the design.** Edit the theme's `assets/css/*.css`, not `custom.css`, unless the change
+is site-specific. Regenerate the code colours with:
+
+```bash
+hugo gen chromastyles --style=github      --mode light --modeSelector --classLight light --classDark dark > assets/css/chroma-light.css
+hugo gen chromastyles --style=github-dark --mode dark  --modeSelector --classLight light --classDark dark > assets/css/chroma-dark.css
+```
+
+---
+
+## 10. Publishing
+
+`.github/workflows/` holds two workflows. Both must run `npm ci` before the build — the
+Tailwind CLI is not part of Hugo:
+
+```bash
+actions/setup-node + npm ci
+hugo --ignoreCache --panicOnWarning --printPathWarnings --printUnusedTemplates --printI18nWarnings
+actions/upload-pages-artifact + actions/deploy-pages
+```
+
+The checkout needs `submodules: recursive` (for the theme) and `fetch-depth: 0` (because
+`enableGitInfo = true` makes "last updated" a fact from the commit history). Repository
+settings: Pages → Source = GitHub Actions.
+
+---
+
+## 11. Definition of done
+
+- [ ] The strict build in §3 exits 0, with no warning you cannot explain.
+- [ ] Every page you touched has a rendered counterpart under `public/`, in both languages.
+- [ ] Its `.md` twin exists and opens with valid YAML.
+- [ ] No inbound link still points at an old path (the render hook would say so).
+- [ ] `hugo_stats.json` changed if you changed class names, and the CSS bundle was regenerated.
+- [ ] Any claim about a default, a flag or a version was verified against this Hugo, not recalled.
+- [ ] If two agents worked in parallel, the Lead ran the strict build again on the merged tree.

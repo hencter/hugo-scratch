@@ -1,0 +1,92 @@
+# ============================================================================
+#  Verify — the same gate a human or an agent runs locally.
+# ----------------------------------------------------------------------------
+#  Nothing here is bespoke: `npm ci`, one strict Hugo build, then the site audit
+#  the Hugo documentation recommends. The point is that CI cannot be more
+#  forgiving than the repository, so a warning that fails locally fails here too.
+#
+#  Two checkout settings are load-bearing:
+#    · submodules: recursive — the theme is a git submodule; without it the build
+#      fails with `found no layout file for "html" for kind "page"`;
+#    · fetch-depth: 0 — enableGitInfo = true makes "last updated" a fact read from
+#      the commit history, and a shallow clone would silently fall back to the
+#      front-matter dates.
+# ============================================================================
+
+name: Verify
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  HUGO_VERSION: 0.167.0
+
+jobs:
+  strict-build:
+    name: Strict build and site audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out, with the theme submodule and full history
+        uses: actions/checkout@v7
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      # The Tailwind CSS v4 CLI is an npm dependency at the site root. It is not
+      # part of Hugo, so the build cannot succeed without this step.
+      - name: Set up Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Hugo (standard edition — the theme needs no extended features)
+        run: |
+          set -euo pipefail
+          curl -sSL "https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_${HUGO_VERSION}_linux-amd64.tar.gz" -o hugo.tar.gz
+          tar -xzf hugo.tar.gz hugo
+          sudo install -m 0755 hugo /usr/local/bin/hugo
+          hugo version
+
+      - name: Strict build
+        run: |
+          hugo --ignoreCache \
+               --panicOnWarning \
+               --printPathWarnings \
+               --printUnusedTemplates \
+               --printI18nWarnings
+
+      # The audit surfaces two classes of problem that are silent by default:
+      # leaked shortcode placeholders and missing-translation placeholders.
+      # `HAHAHUGO` is searched by prefix because writing the full placeholder
+      # prefix in content aborts the build outright.
+      - name: Site audit
+        run: |
+          set -euo pipefail
+          HUGO_MINIFY_TDEWOLFF_HTML_KEEPCOMMENTS=true \
+          HUGO_ENABLEMISSINGTRANSLATIONPLACEHOLDERS=true \
+            hugo --ignoreCache
+          if grep -rn "HAHAHUGO" public/; then
+            echo "::error::leaked shortcode placeholder in the build output"; exit 1
+          fi
+          if grep -rn "MISSING_TRANSLATION" public/; then
+            echo "::error::missing-translation placeholder in the build output"; exit 1
+          fi
+          if grep -rn "raw HTML omitted" public/; then
+            echo "::error::HTML was discarded — check markup.goldmark.renderer.unsafe"; exit 1
+          fi
+
+      - name: Report the rendered page count
+        run: |
+          echo "HTML pages: $(find public -name index.html | wc -l)"
+          echo "Markdown twins: $(find public -name index.md | wc -l)"
+          echo "Machine-readable: $(ls public/llms.txt public/pages.json public/search.json public/sitemap.xml 2>/dev/null | tr '\n' ' ')"

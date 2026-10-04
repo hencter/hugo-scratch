@@ -3,8 +3,23 @@ public/
 resources/_gen/
 .hugo_build.lock
 
-# Written by [build] writeStats = true; consumed by Tailwind, not by Hugo.
+# Written by [build.buildStats] and mounted into assets/ for Tailwind to scan.
+# It IS a build artifact, but Tailwind respects .gitignore and would therefore
+# skip it — which is why assets/css/tailwind.css sources it explicitly with @source.
 hugo_stats.json
+
+# Written by js.Build so editors can resolve imports into theme assets. It embeds
+# machine-specific paths (backslashes included), so it must never be committed.
+assets/jsconfig.json
+
+# Tailwind CSS CLI. Installed with `npm ci`; the packages are pinned in
+# package-lock.json.
+node_modules/
+
+# Isolated build destinations used by verification and by parallel agents.
+.verify/
+.verify-*/
+.hugo-cache-*/
 
 # Editor / OS noise
 .DS_Store
