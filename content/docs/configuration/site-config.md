@@ -39,7 +39,7 @@ tags = ['Hugo', '配置']
 
 ## 四个文件的分工
 
-**`config/_default/hugo.toml`** 管站点身份和构建行为。它声明了 `baseURL = 'https://hencter.github.io/hugo-scratch/'`、`title`、`locale = 'zh-CN'`、`defaultContentLanguage = 'zh-cn'`、`defaultContentLanguageInSubdir = false`（所以中文在根路径，英文在 `/en/` 下）、`enableGitInfo`、`hasCJKLanguage`、`timeZone = 'Asia/Shanghai'`，以及 `theme = ['hugo-scratch-theme']`。再往下是 `[module]` 挂载、`[frontmatter]` 日期来源、`[markup]`、`[taxonomies]`、`[pagination]`、`[outputs]`、`[cascade]` 等表。
+**`config/_default/hugo.toml`** 管站点身份和构建行为。它声明了 `baseURL = 'https://scratch.hugozh.cn/'`、`title`、`locale = 'zh-CN'`、`defaultContentLanguage = 'zh-cn'`、`defaultContentLanguageInSubdir = false`（所以中文在根路径，英文在 `/en/` 下）、`enableGitInfo`、`hasCJKLanguage`、`timeZone = 'Asia/Shanghai'`，以及 `theme = ['hugo-scratch-theme']`。再往下是 `[module]` 挂载、`[frontmatter]` 日期来源、`[markup]`、`[taxonomies]`、`[pagination]`、`[outputs]`、`[cascade]` 等表。`baseURL` 是这里唯一与部署地址绑定的键：用自定义域名从根路径发布时它不带子路径，换成 GitHub 项目站点的默认地址时它必须带上 `/<仓库名>/`。
 
 **`config/_default/languages.toml`** 管语言。两个语言条目 `zh-cn` 与 `en` 各自声明 `label`、`locale`、`weight`、`title`，并在 `[<lang>.params]` 里给出显式的 `dateFormat`——不依赖 `:date_long` 这样的本地化记号，因为本地化数据并不覆盖所有语言。
 
@@ -88,8 +88,6 @@ hugo config | grep -E 'theme|pagerSize|sidebarSections'
 hugo --logLevel warn
 ```
 
-警告往往比错误更能说明问题。想让第一处警告直接变成失败，加上 `--panicOnWarning`，这样一次不小心的改动不会悄悄留在构建日志里。
+警告往往比错误更能说明问题。想让第一处警告直接变成失败，加上 `--panicOnWarning`，这样一次不小心的改动不会悄悄留在构建日志里。[^1]
 
-## 参考
-
-{{< docref "configuration/"  >}}
+[^1]: 上游文档：[Configuration](https://hugozh.cn/configuration/)

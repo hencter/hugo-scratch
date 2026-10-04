@@ -11,7 +11,7 @@ outcomes = ['Read the two compiled parts and the fixed concatenation order', 'Kn
 tags = ['CSS']
 +++
 
-`layouts/_partials/head/css.html` joins two unrelated compilations into one stylesheet: the theme's design system goes through `css.Build`, Tailwind goes through `css.TailwindCSS`, and both are then minified, fingerprinted and given an SRI hash. The pipeline is under ninety lines of template, and it decides several things at once — how many requests the browser makes, whether your changes survive a theme update, and whether code blocks change colour when the reader switches between light and dark.
+`layouts/_partials/head/css.html` joins two unrelated compilations into one stylesheet: the theme's design system goes through `css.Build`, Tailwind goes through `css.TailwindCSS`, and both are then minified, fingerprinted and given an SRI hash. The pipeline is under ninety lines of template, and it decides several things at once — how many requests the browser makes, whether your changes survive a theme update, and whether code blocks change colour when the reader switches between light and dark.[^1]
 
 ## Two compiled parts, one stylesheet
 
@@ -117,9 +117,7 @@ The Tailwind part is not implemented by Hugo itself; it runs the CLI installed w
 - `[security.exec] allow` includes `tailwindcss`, otherwise Hugo refuses to run it;
 - `layouts/_partials/head.html` calls `head/css.html` from inside a deferred template: the statistics file only exists once every page has been rendered, and an inline call would compile against the previous build's data and fail outright on a clean clone.
 
-Troubleshoot in the same order as that dependency list: no colour at all on the page means checking whether `public/css/bundle.min.<hash>.css` was produced; only Tailwind utilities missing means checking that `npm ci` ran and `hugo_stats.json` exists; only your own new rule ignored means checking that it lives in `custom.css` or a file that imports from it; source and output both correct but the browser still showing the old styling means suspecting something caching the HTML, since the fingerprint guarantees a new filename whenever content changes.
+Troubleshoot in the same order as that dependency list: no colour at all on the page means checking whether `public/css/bundle.min.<hash>.css` was produced; only Tailwind utilities missing means checking that `npm ci` ran and `hugo_stats.json` exists; only your own new rule ignored means checking that it lives in `custom.css` or a file that imports from it; source and output both correct but the browser still showing the old styling means suspecting something caching the HTML, since the fingerprint guarantees a new filename whenever content changes.[^2]
 
-## Reference
-
-{{< docref href="functions/css/" title="CSS functions" >}}
-{{< docref href="functions/css/tailwindcss/" title="Tailwind CSS" >}}
+[^1]: Upstream documentation: [CSS functions](https://gohugo.io/functions/css/)
+[^2]: Upstream documentation: [Tailwind CSS](https://gohugo.io/functions/css/tailwindcss/)

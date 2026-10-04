@@ -35,10 +35,15 @@ tags = ['Hugo']
 `layouts/baseof.html` 拥有 `<html>`、`<body>`、页头、三栏栅格与页脚，并在中间留了一个空位：
 
 ```go-html-template
-<main id="main" class="page {{ if .IsPage }}page--reading{{ else }}page--wide{{ end }}" tabindex="-1">
+{{- $pageClass := "page--list" -}}
+{{- if .IsPage }}{{ $pageClass = "page--reading" }}{{ end -}}
+{{- if .IsHome }}{{ $pageClass = "page--wide" }}{{ end -}}
+<main id="main" class="page {{ $pageClass }}" tabindex="-1">
   {{ block "main" . }}{{ end }}
 </main>
 ```
+
+这三个类名回答的是「**为什么**这一页可以偏离阅读行宽」，只有 `page--wide` 真的改宽度（`assets/css/layout.css` 里的 `.page` 默认就是行宽并居中）。首页是主视觉加卡片网格，所以宽；其余页面——**包括 section、taxonomy、term 这些索引页**——主体都是要被读的列表和正文，一律用行宽。索引页曾经也走 `page--wide`，在有目录的两栏里中栏宽 63rem，正文行宽到 115 个字符，右侧目录还被推到最边上。
 
 `layouts/page.html`、`layouts/section.html`、`layouts/home.html` 等各自只写 `{{ define "main" }}…{{ end }}`。这个契约还留了两个给站点用的块：`head-extra`（在 `layouts/_partials/head.html`）和 `scripts`（在 `baseof.html` 底部），站点可以在自己的模板里定义它们来追加标签或脚本，而不必覆盖整个 `baseof.html`：
 
@@ -108,8 +113,6 @@ tags = ['Hugo']
 
 `.Store` 是挂在页面或短代码上的临时存储，写一个键、读一个键，生命周期只到这次构建结束。`layouts/_shortcodes/tabs.html` 用它解决了一个真实问题：每个 `tab` 子短代码把 `{id, title}` 追加到 `$parent.Store` 的 `tabTitles` 键上，而嵌套短代码是**由内向外**渲染的，所以等父短代码执行时，所有子项的标题都已经写进去了；父短代码读到完整的 `tabTitles`，就能把标签按钮在服务端一次性渲染出来——爬虫和禁用 JavaScript 的读者看到的都是完整内容。
 
-这个主题没有用 `partialCached`：任何「缓存」的说法在这里都不成立。需要跨 partial 共享状态时就写进 `.Store`，需要缓存就自己用 `partialCached`，但先确认它真的省下了时间。
+这个主题没有用 `partialCached`：任何「缓存」的说法在这里都不成立。需要跨 partial 共享状态时就写进 `.Store`，需要缓存就自己用 `partialCached`，但先确认它真的省下了时间。[^1]
 
-## 参考
-
-{{< docref href="templates/introduction/" title="Templates" >}}
+[^1]: 上游文档：[Templates](https://hugozh.cn/templates/introduction/)

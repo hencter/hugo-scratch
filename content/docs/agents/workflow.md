@@ -22,7 +22,7 @@ weight = 10
 difficulty = 'intermediate'
 estimatedTime = 25
 prerequisites = ['/docs/start/quick-start/', '/docs/configuration/site-config/']
-outcomes = ['说清项目站点的 /hugo-scratch/ 前缀为什么不能去掉', '把仓库的 Pages 源切成 GitHub Actions']
+outcomes = ['说清 baseURL 为什么必须与站点的真实访问地址一致', '把仓库的 Pages 源切成 GitHub Actions']
 ```
 
 `layouts/_partials/facts.html` 把这些字段渲染成页面顶部的信息面板，`/pages.json`（见[输出格式](/docs/templates/output-formats/)）携带同一批值，所以人和代理看到的是同一个答案。`prerequisites` 用站点根相对路径书写，面板会拿它去 `site.GetPage`：解析成功就显示目标页的短标题和真实链接，解析失败就把字符串原样打印出来。

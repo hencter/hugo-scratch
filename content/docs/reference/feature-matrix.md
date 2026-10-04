@@ -50,12 +50,15 @@ tags = ['参考', '特性']
 | 页面类型模板（home/page/section/taxonomy/term/404） | 同目录同名文件 | 六种页面都存在对应产物 |
 | 返回值的 partial | `layouts/_partials/resolve-image.html` | 返回 `{url,width,height,resource}` |
 | 返回布局判定的 partial | `layouts/_partials/layout/flags.html` | 返回 `{sidebar,toc}`，`baseof` 用它决定栅格 |
+| 宽度由内容决定，而不是由页面类型决定 | `layouts/baseof.html` + `.page` 规则 | 只有首页走 `page--wide`（主视觉＋卡片网格）；section / taxonomy / term 这些索引页和单页一样吃阅读行宽并在轨道里居中——它们原本也是满宽，中栏 63rem 会出现约 115 字符的行 |
 | 内联 partial（`define` 写在 partial 里） | `layouts/_partials/sidebar.html` 等 | 侧栏树、菜单、目录、列表行都用这个模式 |
 | 短代码：标准记法（`.Inner` 是原文） | `layouts/_shortcodes/note.html` 等 | 见 [短代码](/docs/content/shortcodes/) |
 | 短代码：Markdown 记法（`.Inner` 已渲染） | `tabs.html` / `steps.html` / `columns.html` | 同上 |
 | 跨语言文档参考 | `layouts/_shortcodes/docref.html` + `[docs]` 配置 | 中文页指向 hugozh.cn、英文页指向 gohugo.io，**同一处调用**；切换语言后参考文档跟着切 |
 | 片段复用（无头包） | `include.html` + `content/snippets/` | `public/snippets/` 不存在，但片段文字出现在引用了它的两个页面上 |
 | 图标原语（一处决定尺寸） | `layouts/_partials/icon.html` + `.icon` 规则 | 去掉 `.icon` 规则，callout 的图标会撑满整个框 |
+| 图标数据来自 Iconify（构建期零网络） | `assets/icons/*.json` + `_partials/icons/set.html` | IconifyJSON 集合提交进仓库，`resources.Get` + `transform.Unmarshal` 读取，`partialCached` 让每个集合整个构建只解析一次；不用 npm 包、不跑脚本、不联网，`local:logo` 是与集合无关的品牌标记 |
+| 图标声明 | `layouts/_partials/head/icons.html` | 每个页面输出 `rel="icon"`（SVG 为主、PNG 兜底）、`apple-touch-icon` 与 `rel="manifest"`；URL 走 `relURL`，跟着 `baseURL` 走 |
 | 短代码间共享 `.Store` | `tabs.html` 读、`tab.html` 写父级 store | 标签页按钮是服务端渲染出来的 |
 | 覆盖内置短代码 | `figure.html`、`youtube.html` | 站点的同名文件优先 |
 | 七个渲染钩子 | `layouts/_markup/render-*.html` | 见 [渲染钩子](/docs/content/render-hooks/) |
@@ -123,7 +126,7 @@ tags = ['参考', '特性']
 | 词条表（两语言键必须一致） | `themes/hugo-scratch-theme/i18n/*.toml` | `--printI18nWarnings` 静默 |
 | 复数形式 | `readingTime`、`pageCount` 等键 | `T "key" 数字` |
 | 每语言日期格式 | `config/_default/languages.toml` 的 `[<lang>.params]` | 中文页面显示「2026 年 3 月 24 日」 |
-| 语言切换不产生 404 | `layouts/_partials/lang-switcher.html` | 无译文的页面回退到该语言首页 |
+| 语言切换不产生 404 | `layouts/_partials/lang-switcher.html` | 无译文的页面回退到该语言首页；两种语言时整个控件只有一个链接（直接指向对方语言），三种以上才是 `<details>` 下拉 |
 | 每语言 JS 包（译文进打包产物） | `head/js.html` 的 `params.i18n` | `public/js/` 下有两个哈希 |
 
 ## 导航与交互（无第三方脚本）
@@ -135,7 +138,7 @@ tags = ['参考', '特性']
 | 本页目录与滚动高亮 | `layouts/_partials/toc.html` + `modules/toc.js` | 滚动时目录项出现 `aria-current` |
 | 面包屑 | `layouts/_partials/breadcrumbs.html` | 与 JSON-LD 的 BreadcrumbList 一致 |
 | 客户端搜索（首次打开才拉索引） | `modules/search.js` | 网络面板只在打开搜索框后出现 `search.json` |
-| 明暗主题切换 | `modules/theme.js` + `theme-toggle.html` | 刷新后仍保持选择 |
+| 明暗主题切换（一次点击必换外观） | `modules/theme.js` + `theme-toggle.html` | 刷新后仍保持选择；`nextMode` 会跳过与当前外观相同的状态，所以跟随系统时也不会出现"点了没反应"的那一次 |
 | 标签页键盘导航 | `modules/tabs.js` | 左右方向键切换面板 |
 | 代码复制 | `modules/copy.js` + `render-codeblock.html` | 点击后按钮文案变「已复制」 |
 | 返回顶部 | `modules/back-to-top.js` | 滚过一屏后出现 |

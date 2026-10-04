@@ -30,7 +30,7 @@ sell it — the **only** requirement is attribution.
 No particular format is prescribed; something short is enough:
 
 ```text
-Source: Hugo Scratch — https://hencter.github.io/hugo-scratch/
+Source: Hugo Scratch — https://scratch.hugozh.cn/
 Licence: CC BY 4.0
 ```
 

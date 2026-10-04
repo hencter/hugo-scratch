@@ -109,8 +109,6 @@ After `hugo --ignoreCache`, read the artefacts rather than the templates:
 - any `public/docs/.../index.md` must open with valid YAML, not with an escaped string;
 - `public/sitemap.xml` is the index; `public/zh-cn/sitemap.xml` is the per-page list.
 
-To add a format the order is: declare `outputformats` in the theme, attach it to a page kind in the site's `[outputs]`, then write a `{kind}.{name}.{suffix}` template. Miss any one of the three and no file appears.
+To add a format the order is: declare `outputformats` in the theme, attach it to a page kind in the site's `[outputs]`, then write a `{kind}.{name}.{suffix}` template. Miss any one of the three and no file appears.[^1]
 
-## Reference
-
-{{< docref "configuration/output-formats/"  >}}
+[^1]: Upstream documentation: [Output formats](https://gohugo.io/configuration/output-formats/)

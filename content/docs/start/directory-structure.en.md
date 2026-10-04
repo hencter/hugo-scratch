@@ -93,8 +93,6 @@ hugo list all
 
 It lists every content file Hugo recognises, with its path, date and kind. If a page you just created is missing from that list, the filename is usually wrong (renaming `_index.md` to `index.md`, say) or the page is still flagged as a draft.
 
-With those two habits in place, you are ready for the next chapter, which shows how these configuration files merge into the single set of settings a build actually uses.
+With those two habits in place, you are ready for the next chapter, which shows how these configuration files merge into the single set of settings a build actually uses.[^1]
 
-## Reference
-
-{{< docref "getting-started/directory-structure/"  >}}
+[^1]: Upstream documentation: [Directory structure](https://gohugo.io/getting-started/directory-structure/)

@@ -10,7 +10,7 @@ weight = 10
 
 **A page requests same-origin resources only.** The stylesheet, the script, the
 images and `search.json` all come from this site; nothing outside
-`https://hencter.github.io/hugo-scratch/` is contacted. In its default
+`https://scratch.hugozh.cn/` is contacted. In its default
 configuration the site sets no cookies and reports no visit to any analytics
 service. Each claim is spelled out below, with a way to check it yourself.
 

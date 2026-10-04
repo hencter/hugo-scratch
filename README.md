@@ -6,11 +6,11 @@
 
 | | |
 | --- | --- |
-| 站点 | <https://hencter.github.io/hugo-scratch/> |
+| 站点 | <https://scratch.hugozh.cn/> |
 | 站点仓库 | <https://github.com/hencter/hugo-scratch> |
 | 主题仓库 | <https://github.com/hencter/hugo-scratch-theme> |
 | Hugo 版本 | 0.146 或更高（标准版即可，已用 0.167.0 的标准版与 extended 版实机构建验证） |
-| 许可 | 代码与主题 MIT · 正文 CC BY 4.0，见 [许可说明](https://hencter.github.io/hugo-scratch/legal/license/) |
+| 许可 | 代码与主题 MIT · 正文 CC BY 4.0，见 [许可说明](https://scratch.hugozh.cn/legal/license/) |
 
 > **只想让 Agent 帮你改这个站点？** 根目录的 [AGENTS.md](AGENTS.md) 是唯一需要的文档：它写了运行方式、唯一那条必须通过的构建命令、内容字段契约、以及这个仓库真实踩过的坑。不需要再查别处。
 
@@ -20,7 +20,7 @@
 git clone --recurse-submodules https://github.com/hencter/hugo-scratch.git
 cd hugo-scratch
 npm ci                       # Tailwind v4 的 CLI，站点根目录这一份
-hugo server                  # http://localhost:1313/hugo-scratch/
+hugo server                  # http://localhost:1313/
 ```
 
 两个"不是可选项"的地方，以及它们失败时的样子：
@@ -47,7 +47,7 @@ hugo --ignoreCache --panicOnWarning --printPathWarnings --printUnusedTemplates -
 
 ## 里面有什么
 
-这一页下面列的不是"计划支持"，每一条都有对应的真实文件与验证方式；完整清单见[特性总表](https://hencter.github.io/hugo-scratch/docs/reference/feature-matrix/)。
+这一页下面列的不是"计划支持"，每一条都有对应的真实文件与验证方式；完整清单见[特性总表](https://scratch.hugozh.cn/docs/reference/feature-matrix/)。
 
 **内容组织**：分支包 / 叶子包 / 无头包（`content/snippets/` 只被 `{{< include >}}` 引用、从不发布）、页面资源与图片处理、内容适配器（从 `data/changelog.toml` 生成 `/changelog/` 下的一页页）、三种分类法、别名（旧地址 `/docs/quick-start/` 仍然重定向到新位置）、草稿与未来 / 过期页面（`hugo list drafts|future|expired` 可查，横幅由 `layouts/_partials/banner.html` 渲染）、按年分组的列表，以及刻意调小的分页（`pagerSize = 2`）。
 
@@ -83,11 +83,13 @@ hugo-scratch/
 
 `.github/workflows/` 里有两个工作流：一个跑上面的严格构建，一个发布到 GitHub Pages。两者都必须是 `actions/checkout`（`submodules: recursive` + `fetch-depth: 0`）→ `actions/setup-node` + `npm ci` → 严格构建 → `upload-pages-artifact` + `deploy-pages`。仓库设置里把 Pages 的来源设为 GitHub Actions。
 
-换域名只需要改两处：`config/_default/hugo.toml` 的 `baseURL`，以及 Pages 里的自定义域。项目站的 `/hugo-scratch/` 前缀来自 `baseURL`，改了它会跟着变。
+换到别的托管平台（EdgeOne Pages、Netlify、Cloudflare Pages 等）时，**这两步的顺序不能省**：安装步骤跑 `npm ci`，构建步骤跑 `npm run build`（`package.json` 里的脚本就是那条严格命令）。很多平台镜像自带一个 standalone 的 `tailwindcss`；只要安装步骤没跑，Hugo 就会用上它并报 `binary "tailwindcss" is not a Node.js script`——Hugo 0.161 起只认 npm 装出来的 CLI，构建命令写裸 `hugo` 一定会踩到。
+
+换域名只需要改两处：`config/_default/hugo.toml` 的 `baseURL`，以及 Pages 里的自定义域。本站用自定义域名从**根路径**发布（`baseURL = 'https://scratch.hugozh.cn/'`），所以生成的 URL 里没有子路径；带 `/hugo-scratch/` 子路径的是 GitHub Pages **项目站点**的默认地址（`https://<owner>.github.io/<repo>/`）。两者必须与 `baseURL` 对齐，写错时症状是资源 404，而不是构建报错。
 
 ## 许可
 
-代码、主题与示例代码片段：MIT。`content/` 下的正文：CC BY 4.0。详见[许可说明](https://hencter.github.io/hugo-scratch/legal/license/)。
+代码、主题与示例代码片段：MIT。`content/` 下的正文：CC BY 4.0。详见[许可说明](https://scratch.hugozh.cn/legal/license/)。
 
 ---
 

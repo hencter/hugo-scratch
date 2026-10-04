@@ -114,8 +114,6 @@ $$ e^{i\pi} + 1 = 0 $$
 
 Markdown 记法的短代码（`{{%/* tabs */%}}`、`{{%/* steps */%}}`）之所以能让内部标题进入目录，是因为它们跑在 Markdown 渲染器**之前**，其输出会被重新解析成 Markdown 块。标准记法的短代码跑在之后，`.Inner` 是未渲染的文本，标题就永远不会出现在 `.Fragments` 里。
 
-这条差别直接影响选型：**内容里有标题、且希望它被目录收录，就只能用 Markdown 记法。**
+这条差别直接影响选型：**内容里有标题、且希望它被目录收录，就只能用 Markdown 记法。**[^1]
 
-## 参考
-
-{{< docref "render-hooks/"  >}}
+[^1]: 上游文档：[Render hooks](https://hugozh.cn/render-hooks/)

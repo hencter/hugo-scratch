@@ -20,7 +20,7 @@ Hugo Scratch 是一个把 Hugo 常用特性**真的跑起来**的站点，而不
 <https://github.com/hencter/hugo-scratch-theme>，作为子模块挂在
 `themes/hugo-scratch-theme`；内容与配置属于
 <https://github.com/hencter/hugo-scratch>。线上地址是
-<https://hencter.github.io/hugo-scratch/>。当前版本是 `v1.11.0`。
+<https://scratch.hugozh.cn/>。当前版本是 `v1.11.0`。
 
 ## 给谁用
 

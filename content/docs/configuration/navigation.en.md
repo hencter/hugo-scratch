@@ -81,8 +81,6 @@ series = ['从零搭一个 Hugo 站点']
 
 `[params.ui] showTags` decides whether a post page displays its tags. The taxonomy pages themselves are rendered by `layouts/taxonomy.html` and `layouts/term.html`, with the term list delegated to `layouts/_partials/terms.html`. If you decide not to use taxonomies at all, add `disableKinds = ['taxonomy', 'term']` to the configuration so Hugo stops generating those pages — but check first that no template or menu entry refers to them.
 
-That is the whole of the navigation configuration. Run a build after changing it: the warnings usually say straight away that a menu entry points at a page that does not exist, or that a section's `weight` duplicates its neighbour's.
+That is the whole of the navigation configuration. Run a build after changing it: the warnings usually say straight away that a menu entry points at a page that does not exist, or that a section's `weight` duplicates its neighbour's.[^1]
 
-## Reference
-
-{{< docref "content-management/menus/"  >}}
+[^1]: Upstream documentation: [Menus](https://gohugo.io/content-management/menus/)

@@ -48,7 +48,7 @@ Right now it is a four-part series called `Building a Hugo site from scratch`:
 ## Who these notes are written for
 
 They assume you can write Markdown and that you have Hugo installed. The site
-requires [0.146.0 or later](https://gohugo.io/installation/); the current build
+requires 0.146.0 or later[^1]; the current build
 runs {{< version >}}. They do not assume you write Go templates: wherever a
 template has to change, the post names the file and the edit.
 
@@ -69,3 +69,5 @@ to go with them. For now `layouts/_partials/comments.html` renders nothing but a
 link to an issue in the repository: readers who want to discuss can follow it,
 and readers who do not never download an extra byte for it.
 {{< /details >}}
+
+[^1]: [Installing Hugo](https://gohugo.io/installation/)

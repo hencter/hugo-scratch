@@ -43,7 +43,7 @@ groupByYear = true
 ## 这里假定的读者
 
 读者假定你会写 Markdown，也假定你装好了 Hugo——本站要求
-[0.146.0 或更高版本](https://gohugo.io/installation/)，当前的构建版本是 {{< version >}}。
+0.146.0 或更高版本[^1]，当前的构建版本是 {{< version >}}。
 不假定你会写 Go 模板：凡是需要改模板的地方，文章都会指出文件名和改动位置。
 
 ## 怎样把这些笔记当文档用
@@ -60,3 +60,5 @@ groupByYear = true
 现在 `layouts/_partials/comments.html` 只渲染一个指向仓库 issue 的链接：
 想讨论的读者点过去，不想讨论的读者不会因此多下载一个字节。
 {{< /details >}}
+
+[^1]: [Hugo 安装说明](https://gohugo.io/installation/)

@@ -7,18 +7,18 @@ weight = 10
 difficulty = 'intermediate'
 estimatedTime = 25
 prerequisites = ['/docs/start/quick-start/', '/docs/configuration/site-config/']
-outcomes = ['Explain why the /hugo-scratch/ prefix of a project site cannot be dropped', 'Write a publishing workflow with submodule checkout and the strict build', 'Switch the repository Pages source to GitHub Actions', 'Know which DNS records and which configuration key a custom domain needs']
+outcomes = ['Explain why baseURL must match the address the site is actually served from', 'Write a publishing workflow with submodule checkout and the strict build', 'Switch the repository Pages source to GitHub Actions', 'Know which DNS records and which configuration key a custom domain needs']
 tags = ['deployment']
 +++
 
-## Why the /hugo-scratch/ prefix cannot be dropped
+## Why baseURL has to match the address the site is served from
 
-`baseURL` in `config/_default/hugo.toml` is `https://hencter.github.io/hugo-scratch/`, which makes this a GitHub Pages **project** site: it lives under a subpath named after the repository. `defaultContentLanguageInSubdir = false` puts Simplified Chinese at `/` and English at `/en/`, so both languages live inside that prefix.
+`baseURL` in `config/_default/hugo.toml` is `https://scratch.hugozh.cn/`. This site is published on a custom domain and served from the **root**, so no generated URL carries a subpath. `defaultContentLanguageInSubdir = false` puts Simplified Chinese at `/` and English at `/en/`, so both languages live under that same root.[^1]
 
-Hugo builds every absolute URL from `baseURL`: the `<link>` and `<script>` tags for the stylesheet and the scripts, each page's canonical URL, the Open Graph tags, `sitemap.xml` and the feeds. Change `baseURL` to `https://hencter.github.io/` and the pages still open, but every asset now points at the root of the user site — the result is content with no styling.
+Hugo builds every absolute URL from `baseURL`: the `<link>` and `<script>` tags for the stylesheet and the scripts, each page's canonical URL, the Open Graph tags, `sitemap.xml` and the feeds. Change it to some other address and the pages still open, but every asset now points there — the result is content with no styling.
 
 {{< warning >}}
-The `baseURL` used at build time must end in `/hugo-scratch/`. A missing trailing slash or an extra subpath both show up as 404s for assets, not as a build error.
+Getting it wrong shows up as 404s for assets, not as a build error. The same is true in the other direction: the default URL of a GitHub Pages *project* site looks like `https://<owner>.github.io/<repo>/`, and publishing there means `baseURL` must carry `/<repo>/`; publish on a custom domain while keeping a subpath and every asset points at a location that does not exist.
 {{< /warning >}}
 
 ## Repository settings
@@ -134,17 +134,17 @@ The **file name does not matter**; what selects a workflow is its own `on:` trig
 
 Both hosts follow the same model: connect the repository, give a build command and an output directory. Four things have to line up for this repository — the build command (the strict one above, or a bare `hugo`), the output directory `public/`, the Hugo version pinned through the `HUGO_VERSION` environment variable (again at least 0.146.0, non-extended is fine), and submodule initialisation during the platform's clone. That last one is the usual trap: when the platform does not run `git submodule update --init --recursive`, the symptom is identical to a local checkout that skipped the submodule.
 
-There is one difference pointing the other way: Netlify and Cloudflare Pages serve a project from the root path, while a GitHub Pages project site depends on its `/hugo-scratch/` prefix. So when you move hosts, change `baseURL` to their domain (usually `https://<project>.netlify.app/` or `https://<project>.pages.dev/`); keeping `/hugo-scratch/` sends every asset to a subpath that does not exist.
+The one thing that has to line up when you move hosts is still `baseURL`: change it to their domain (usually `https://<project>.netlify.app/` or `https://<project>.pages.dev/`, both of which serve from the root). The `/<repo>/` prefix belongs to the default URL of a GitHub Pages project site only; hand a prefixed address to Netlify or Cloudflare Pages and every asset points at a subpath that does not exist.
 
 ## Custom domain
 
+This site is published exactly this way: the custom domain `scratch.hugozh.cn` serves it from the root. Four steps:
+
 1. Enter the domain under **Settings → Pages → Custom domain** and save. As noted above, an Actions deployment creates no `CNAME` file and needs none.
-2. Configure DNS. For an apex domain (`example.com`) add four A records: `185.199.108.153`, `185.199.109.153`, `185.199.110.153`, `185.199.111.153`. For `www`, add a CNAME record pointing at `hencter.github.io` — without the repository name.
-3. Change `baseURL` in `config/_default/hugo.toml` to `https://example.com/`. A custom domain is served from the root path, so the `/hugo-scratch/` prefix must go, or you get asset 404s in the opposite direction from the first section.
+2. Configure DNS. For an apex domain (`example.com`) add four A records: `185.199.108.153`, `185.199.109.153`, `185.199.110.153`, `185.199.111.153`. For `www`, add a CNAME record pointing at `hencter.github.io` — without the repository name. This site uses a subdomain, so one CNAME record pointing at `hencter.github.io` is enough.
+3. Change `baseURL` in `config/_default/hugo.toml` to the custom domain, ending in `/`: `baseURL = 'https://scratch.hugozh.cn/'`. A custom domain is served from the root, so the address must not carry a `/<repo>/` subpath, or you get asset 404s. Changing the domain later touches this one value and nothing else.
 4. After DNS has propagated, tick **Enforce HTTPS** in the Pages settings.
 
 Once the domain is set up, run the strict build again and read `public/sitemap.xml` plus one page's `public/**/index.html` to confirm that canonical and `og:url` now carry the new domain. That catches the problem earlier than a browser refresh does.
 
-## Reference
-
-{{< docref href="host-and-deploy/host-on-github-pages/" title="Host on GitHub Pages" >}}
+[^1]: Upstream documentation: [Host on GitHub Pages](https://gohugo.io/host-and-deploy/host-on-github-pages/)

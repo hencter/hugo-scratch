@@ -35,10 +35,15 @@ This theme's file names map onto the older spellings: `single.html` corresponds 
 `layouts/baseof.html` owns `<html>`, `<body>`, the header, the three-column grid and the footer, and leaves one gap in the middle:
 
 ```go-html-template
-<main id="main" class="page {{ if .IsPage }}page--reading{{ else }}page--wide{{ end }}" tabindex="-1">
+{{- $pageClass := "page--list" -}}
+{{- if .IsPage }}{{ $pageClass = "page--reading" }}{{ end -}}
+{{- if .IsHome }}{{ $pageClass = "page--wide" }}{{ end -}}
+<main id="main" class="page {{ $pageClass }}" tabindex="-1">
   {{ block "main" . }}{{ end }}
 </main>
 ```
+
+Those three names answer "**why** may this page deviate from the reading measure", and only `page--wide` actually changes the width (`.page` in `layout.css` is the measure, centred, by default). The home page is a hero plus a card grid, so it is wide; every other kind — **sections, taxonomies and terms included** — is a list and prose meant to be read, so it keeps the measure. Index pages used to be wide too, which put 115-character lines in the 63rem middle track of a TOC layout and pushed the table of contents to the far edge.
 
 `layouts/page.html`, `layouts/section.html` and `layouts/home.html` each contain nothing but `{{ define "main" }}…{{ end }}`. The contract also leaves two blocks for a site to use — `head-extra` (in `layouts/_partials/head.html`) and `scripts` (at the bottom of `baseof.html`) — so a site can add tags or scripts without overriding `baseof.html` itself:
 
@@ -112,8 +117,6 @@ The third trap is dates: `.Date` is a `time.Time` struct, so `with` is always tr
 - nested shortcodes render **inside-out**, so by the time the parent runs, every child title is already there;
 - the parent reads the complete `tabTitles` and renders the tab buttons on the server in one pass — crawlers and readers without JavaScript see the whole component.
 
-This theme uses `partialCached` for nothing: any claim that it caches anything here is false. When a partial needs to share state, write it to `.Store`; when you genuinely need caching, reach for `partialCached`, but measure first that it saves something.
+This theme uses `partialCached` for nothing: any claim that it caches anything here is false. When a partial needs to share state, write it to `.Store`; when you genuinely need caching, reach for `partialCached`, but measure first that it saves something.[^1]
 
-## Reference
-
-{{< docref href="templates/introduction/" title="Templates" >}}
+[^1]: Upstream documentation: [Templates](https://gohugo.io/templates/introduction/)

@@ -13,7 +13,13 @@
 #    "found no layout file for kind …".
 # ============================================================================
 
-baseURL = 'https://hencter.github.io/hugo-scratch/'
+# The site is published on a custom domain, so it is served from the ROOT of
+# that host and no path prefix appears in any generated URL. Every absolute URL
+# Hugo builds — stylesheet and script tags, canonical, Open Graph, sitemap, feeds
+# — is derived from this one value. A GitHub Pages *project* site published
+# without a custom domain would instead need 'https://<owner>.github.io/<repo>/',
+# and the missing subpath would surface as 404s for assets, not as a build error.
+baseURL = 'https://scratch.hugozh.cn/'
 title = 'Hugo Scratch'
 
 # BCP-47 tag of the default content language. Replaced `languageCode` in 0.158;

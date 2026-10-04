@@ -93,8 +93,6 @@ hugo list all
 
 它一次列出 Hugo 认可的全部内容文件及其路径、日期和类型。如果你刚新建了一页却发现它不在列表里，通常是文件名不对（例如把 `_index.md` 打成了 `index.md`），或者页面被标成了草稿。
 
-弄清楚这两件事之后，就可以进入下一章，看这些配置文件是怎么被合并成一份生效配置的。
+弄清楚这两件事之后，就可以进入下一章，看这些配置文件是怎么被合并成一份生效配置的。[^1]
 
-## 参考
-
-{{< docref "getting-started/directory-structure/"  >}}
+[^1]: 上游文档：[Directory structure](https://hugozh.cn/getting-started/directory-structure/)

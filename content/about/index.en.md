@@ -22,7 +22,7 @@ The site starts from `hugo new site` and `hugo new theme`. The theme lives at
 <https://github.com/hencter/hugo-scratch-theme> and is mounted as a submodule at
 `themes/hugo-scratch-theme`; the content and configuration belong to
 <https://github.com/hencter/hugo-scratch>. The public site is
-<https://hencter.github.io/hugo-scratch/>. The current version is `v1.11.0`.
+<https://scratch.hugozh.cn/>. The current version is `v1.11.0`.
 
 ## Who it is for
 

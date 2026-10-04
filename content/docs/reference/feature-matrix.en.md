@@ -50,12 +50,15 @@ Convention: paths in the implementation column are relative to the repository ro
 | Page-kind templates (home/page/section/taxonomy/term/404) | same directory | all six kinds have build output |
 | A partial that returns a value | `layouts/_partials/resolve-image.html` | returns `{url,width,height,resource}` |
 | A partial that returns layout decisions | `layouts/_partials/layout/flags.html` | returns `{sidebar,toc}`; `baseof` picks the grid |
+| Width follows the content, not the page kind | `layouts/baseof.html` + the `.page` rule | only the home page is `page--wide` (hero plus card grid); sections, taxonomies and terms read at the same measure as a leaf page and sit centred in their track — they used to be full width, which gave ~115-character lines in the 63rem middle track |
 | Inline partials (`define` inside a partial file) | `layouts/_partials/sidebar.html` and friends | the sidebar tree, menu, TOC and list rows all use it |
 | Shortcodes, standard notation (`.Inner` is raw) | `layouts/_shortcodes/note.html` and friends | see [Shortcodes](/docs/content/shortcodes/) |
 | Shortcodes, Markdown notation (`.Inner` is rendered) | `tabs.html` / `steps.html` / `columns.html` | same page |
 | Language-aware documentation reference | `layouts/_shortcodes/docref.html` + the `[docs]` config | the Chinese page points at hugozh.cn and the English one at gohugo.io from **one** call site; switching language switches the reference |
 | Fragment reuse via a headless bundle | `include.html` + `content/snippets/` | `public/snippets/` does not exist, yet the fragment's text appears on both pages that include it |
 | Icon primitive, sized in one place | `layouts/_partials/icon.html` + the `.icon` rule | delete the `.icon` rule and a callout icon fills the entire callout |
+| Icon data from Iconify, no network at build time | `assets/icons/*.json` + `_partials/icons/set.html` | the IconifyJSON collections are committed; `resources.Get` + `transform.Unmarshal` read them and `partialCached` parses each collection once per build — no npm package, no script, no network. `local:logo` is the brand mark, which belongs to no set |
+| Icon declarations | `layouts/_partials/head/icons.html` | every page emits `rel="icon"` (SVG primary, PNG fallback), `apple-touch-icon` and `rel="manifest"`, with URLs through `relURL` so they follow `baseURL` |
 | A shared `.Store` between shortcodes | `tab.html` writes, `tabs.html` reads the parent's | the tab buttons are server-rendered |
 | Overriding a built-in shortcode | `figure.html`, `youtube.html` | the site's file of the same name wins |
 | Seven render hooks | `layouts/_markup/render-*.html` | see [Render hooks](/docs/content/render-hooks/) |
@@ -123,7 +126,7 @@ Convention: paths in the implementation column are relative to the repository ro
 | i18n catalogue with identical key sets | `themes/hugo-scratch-theme/i18n/*.toml` | `--printI18nWarnings` stays silent |
 | Pluralised strings | `readingTime`, `pageCount` and friends | `T "key" <number>` |
 | Per-language date format | `[<lang>.params]` in `config/_default/languages.toml` | Chinese pages read "2026 年 3 月 24 日" |
-| A language switcher that never 404s | `layouts/_partials/lang-switcher.html` | an untranslated page falls back to that language's home |
+| A language switcher that never 404s | `layouts/_partials/lang-switcher.html` | an untranslated page falls back to that language's home; with two languages the whole control is a single link to the other one, and a `<details>` disclosure only appears from three up |
 | Per-language JS bundles (translations inside) | `params.i18n` in `head/js.html` | `public/js/` holds two hashes |
 
 ## Navigation and interaction, without third-party scripts
@@ -135,7 +138,7 @@ Convention: paths in the implementation column are relative to the repository ro
 | On-this-page contents with scroll highlighting | `layouts/_partials/toc.html` + `modules/toc.js` | scrolling sets `aria-current` |
 | Breadcrumbs | `layouts/_partials/breadcrumbs.html` | they agree with the BreadcrumbList JSON-LD |
 | Client-side search, index fetched on first open | `modules/search.js` | the network panel shows `search.json` only after opening the dialog |
-| Colour theme switch | `modules/theme.js` + `theme-toggle.html` | the choice survives a reload |
+| Colour theme switch, one click one visible change | `modules/theme.js` + `theme-toggle.html` | the choice survives a reload; `nextMode` skips any state that resolves to the appearance already on screen, so following the system never costs a dead click |
 | Keyboard-navigable tabs | `modules/tabs.js` | arrow keys move between panels |
 | Copy button | `modules/copy.js` + `render-codeblock.html` | the label changes to "Copied" |
 | Back to top | `modules/back-to-top.js` | appears after one screen of scrolling |

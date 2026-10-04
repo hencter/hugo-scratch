@@ -109,8 +109,6 @@ tags = ['Hugo']
 - 任意页面的 `public/docs/.../index.md` 开头必须是合法的 YAML，而不是带转义的字符串；
 - `public/sitemap.xml` 是索引，`public/zh-cn/sitemap.xml` 才是逐页清单。
 
-想再加一种格式，顺序是：在主题里声明 `outputformats`，在站点 `[outputs]` 里挂到某类页面上，然后写一个 `{kind}.{name}.{suffix}` 模板。三处缺一，产物都不会出现。
+想再加一种格式，顺序是：在主题里声明 `outputformats`，在站点 `[outputs]` 里挂到某类页面上，然后写一个 `{kind}.{name}.{suffix}` 模板。三处缺一，产物都不会出现。[^1]
 
-## 参考
-
-{{< docref "configuration/output-formats/"  >}}
+[^1]: 上游文档：[Output formats](https://hugozh.cn/configuration/output-formats/)

@@ -57,7 +57,9 @@ The rule is "prefer this page's translation, fall back to that language's home p
 `$url` starts as the other language's home page and is overwritten only when a
 translated page of the same language exists. `hugo.Sites` includes the current
 language, so one control renders identically on both sides. The trade-off is that on
-an untranslated article the switch lands on the home page, and nothing says so.
+an untranslated article the switch lands on the home page, and nothing says so. With
+two languages the control is a single link to the other one — there is nothing to
+choose between — and a `<details>` disclosure only appears from three up.
 
 ## `hreflang` versus `og:locale`: hyphens against underscores
 

@@ -90,12 +90,10 @@ hugo server
 
 ## 接下来
 
-本地能跑之后，先读[目录结构](/docs/start/directory-structure/)，它标出了 `public/`、`resources/` 这些不该手改的目录。然后再读[配置](/docs/configuration/)，理解这个站点为什么不把 `hugo.toml` 放在根目录，以及主题、`_default`、环境配置三层是怎么合并的——后面每一页提到的配置项，出处都在那里。
+本地能跑之后，先读[目录结构](/docs/start/directory-structure/)，它标出了 `public/`、`resources/` 这些不该手改的目录。然后再读[配置](/docs/configuration/)，理解这个站点为什么不把 `hugo.toml` 放在根目录，以及主题、`_default`、环境配置三层是怎么合并的——后面每一页提到的配置项，出处都在那里。[^1]
 
 ## 交付前的门禁
 
 {{< include "build-gate" >}}
 
-## 参考
-
-{{< docref "getting-started/"  >}}
+[^1]: 上游文档：[Getting started](https://hugozh.cn/getting-started/)

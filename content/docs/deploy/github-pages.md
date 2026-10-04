@@ -7,18 +7,18 @@ weight = 10
 difficulty = 'intermediate'
 estimatedTime = 25
 prerequisites = ['/docs/start/quick-start/', '/docs/configuration/site-config/']
-outcomes = ['说清项目站点的 /hugo-scratch/ 前缀为什么不能去掉', '写出带子模块检出与严格构建的发布工作流', '把仓库的 Pages 源切成 GitHub Actions', '知道自定义域名要改哪些 DNS 记录和哪个配置项']
+outcomes = ['说清 baseURL 为什么必须与站点的真实访问地址一致', '写出带子模块检出与严格构建的发布工作流', '把仓库的 Pages 源切成 GitHub Actions', '知道自定义域名要改哪些 DNS 记录和哪个配置项']
 tags = ['部署']
 +++
 
-## 为什么 /hugo-scratch/ 这个前缀不能去掉
+## 为什么 baseURL 必须和访问地址一致
 
-`config/_default/hugo.toml` 里的 `baseURL` 是 `https://hencter.github.io/hugo-scratch/`，这是一个 GitHub Pages **项目站点**：站点住在仓库名的子路径下。同时 `defaultContentLanguageInSubdir = false`，所以简体中文从 `/` 提供，英文从 `/en/` 提供，两个语言都在这个前缀之内。
+`config/_default/hugo.toml` 里的 `baseURL` 是 `https://scratch.hugozh.cn/`。本站发布在自定义域名上，从**根路径**提供服务，所以生成的 URL 都不带子路径。同时 `defaultContentLanguageInSubdir = false`，所以简体中文从 `/` 提供，英文从 `/en/` 提供，两种语言都在同一个根之下。[^1]
 
-Hugo 用 `baseURL` 生成所有绝对 URL：样式表与脚本的 `<link>`/`<script>`、每个页面的 canonical、Open Graph、`sitemap.xml` 和 RSS。把 `baseURL` 改成 `https://hencter.github.io/` 之后，页面本身仍然能打开，但每个资源都指向用户站点的根目录，结果是"有内容、没样式"。
+Hugo 用 `baseURL` 生成所有绝对 URL：样式表与脚本的 `<link>`/`<script>`、每个页面的 canonical、Open Graph、`sitemap.xml` 和 RSS。把它改成别的地址，页面本身仍然能打开，但每个资源都指向那个地址——结果是"有内容、没样式"。
 
 {{< warning >}}
-构建时的 `baseURL` 必须以 `/hugo-scratch/` 结尾。少一个尾斜杠或多一个子路径，症状都是资源 404，而不是构建报错。
+写错时症状是资源 404，而不是构建报错。带子路径的情况同样如此：GitHub Pages **项目站点**的默认地址形如 `https://<用户名>.github.io/<仓库名>/`，用那个地址发布时 `baseURL` 必须原样带上 `/<仓库名>/`；反之，用自定义域名却留着子路径，资源就会指向一个不存在的位置。
 {{< /warning >}}
 
 ## 仓库设置
@@ -134,17 +134,17 @@ jobs:
 
 两家的模型一样：连上仓库，给一条构建命令和一个输出目录。对这个仓库只有四处需要对齐——构建命令用上面那条严格命令（或裸 `hugo`）、输出目录填 `public/`、Hugo 版本通过 `HUGO_VERSION` 环境变量固定（同样 ≥ 0.146.0，非 extended 即可）、子模块必须在平台克隆时被初始化。最后一条最容易踩：平台没有跑 `git submodule update --init --recursive` 时，症状和本地漏掉子模块一模一样。
 
-还有一处方向相反的差异：Netlify 和 Cloudflare Pages 的项目默认服务在根路径，而 GitHub 项目站点靠 `/hugo-scratch/` 前缀。所以换平台时 `baseURL` 要改成对方的域名（通常是 `https://<项目名>.netlify.app/` 或 `https://<项目名>.pages.dev/`），继续留着 `/hugo-scratch/` 会让资源指向一个不存在的子路径。
+还有一处方向相反的差异：换平台时唯一要对齐的仍然是 `baseURL`——改成对方的域名（通常是 `https://<项目名>.netlify.app/` 或 `https://<项目名>.pages.dev/`，两者都从根路径提供服务）。`/<仓库名>/` 前缀只属于 GitHub 项目站点的默认地址；把带前缀的地址填给 Netlify 或 Cloudflare Pages，会让资源指向一个不存在的子路径。
 
 ## 自定义域名
 
+本站就是这么发布的：自定义域名 `scratch.hugozh.cn` 从根路径提供服务。完整过程四步：
+
 1. 在 **Settings → Pages → Custom domain** 填域名并保存。前面说过，Actions 发布不会生成 `CNAME` 文件，也不需要它。
-2. 配 DNS。apex 域名（`example.com`）加四条 A 记录：`185.199.108.153`、`185.199.109.153`、`185.199.110.153`、`185.199.111.153`；`www` 建一条 CNAME 指向 `hencter.github.io`，注意不要带仓库名。
-3. 改 `config/_default/hugo.toml` 的 `baseURL` 为 `https://example.com/`。自定义域名服务在根路径，`/hugo-scratch/` 前缀必须去掉，否则会出现和第一节完全相反的资源 404。
+2. 配 DNS。apex 域名（`example.com`）加四条 A 记录：`185.199.108.153`、`185.199.109.153`、`185.199.110.153`、`185.199.111.153`；`www` 建一条 CNAME 指向 `hencter.github.io`，注意不要带仓库名。本站用的是子域名，一条指向 `hencter.github.io` 的 CNAME 记录就够。
+3. 把 `config/_default/hugo.toml` 的 `baseURL` 改成自定义域名并以 `/` 结尾：`baseURL = 'https://scratch.hugozh.cn/'`。自定义域名服务在根路径，地址里不能再带 `/<仓库名>/` 这类子路径，否则资源 404。以后换域名，改的也只有这一处。
 4. DNS 生效后回到 Pages 设置勾上 **Enforce HTTPS**。
 
 改完域名后重新跑一次严格构建，然后直接读 `public/sitemap.xml` 和任一页面的 `public/**/index.html`，确认 canonical 与 `og:url` 已经换成新域名——这一步比在浏览器里刷新更早发现问题。
 
-## 参考
-
-{{< docref href="host-and-deploy/host-on-github-pages/" title="Host on GitHub Pages" >}}
+[^1]: 上游文档：[Host on GitHub Pages](https://hugozh.cn/host-and-deploy/host-on-github-pages/)

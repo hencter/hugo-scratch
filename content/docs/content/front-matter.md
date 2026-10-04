@@ -129,8 +129,6 @@ enableGitInfo = true
 
 `cascade.target` 负责选页面（`path`、`kind`、`lang` 等），其余键合并进被选中页面的 front matter。构建产物里 `/legal/privacy/` 的 `changefreq` 是 `yearly`、`priority` 是 `0.2`，其余页面保持 `[sitemap]` 的 `weekly` / `0.5`——这句话是可验证的，不是推测。旧写法 `cascade._target` 自 0.156 起废弃。
 
-改完一页，跑一次 `hugo --ignoreCache`，再去 `public/` 里读那一页——front matter 的问题几乎都能在渲染结果里看出来，而不是在构建日志里。
+改完一页，跑一次 `hugo --ignoreCache`，再去 `public/` 里读那一页——front matter 的问题几乎都能在渲染结果里看出来，而不是在构建日志里。[^1]
 
-## 参考
-
-{{< docref "content-management/front-matter/"  >}}
+[^1]: 上游文档：[Front matter](https://hugozh.cn/content-management/front-matter/)

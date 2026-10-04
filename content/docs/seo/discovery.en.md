@@ -65,8 +65,6 @@ head -20 public/sitemap.xml
 head -30 public/pages.json
 ```
 
-Check four things in order: the `Sitemap:` line in `robots.txt` is absolute; the root `sitemap.xml` is an index and every language is listed in it; every entry in `pages.json` has both `url` and `markdown`; and `search.json` already contains the page you just wrote. Then open any page's source and confirm a canonical URL, paired hreflang links and a JSON-LD block. When all four pass, the site is discoverable, parseable and quotable by machines.
+Check four things in order: the `Sitemap:` line in `robots.txt` is absolute; the root `sitemap.xml` is an index and every language is listed in it; every entry in `pages.json` has both `url` and `markdown`; and `search.json` already contains the page you just wrote. Then open any page's source and confirm a canonical URL, paired hreflang links and a JSON-LD block. When all four pass, the site is discoverable, parseable and quotable by machines.[^1]
 
-## Reference
-
-{{< docref "templates/sitemap/"  >}}
+[^1]: Upstream documentation: [Sitemap](https://gohugo.io/templates/sitemap/)

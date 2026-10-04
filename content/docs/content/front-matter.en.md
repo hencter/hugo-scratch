@@ -146,8 +146,6 @@ To set a value across a group of pages, do not copy and paste it — use a site-
 
 The older `cascade._target` spelling is deprecated as of 0.156; the current key is `cascade.target`.
 
-After changing a page, run `hugo --ignoreCache` once and read the page in `public/`. Front matter mistakes almost always show up in the rendered output rather than in the build log.
+After changing a page, run `hugo --ignoreCache` once and read the page in `public/`. Front matter mistakes almost always show up in the rendered output rather than in the build log.[^1]
 
-## Reference
-
-{{< docref "content-management/front-matter/"  >}}
+[^1]: Upstream documentation: [Front matter](https://gohugo.io/content-management/front-matter/)

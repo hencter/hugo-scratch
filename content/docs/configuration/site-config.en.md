@@ -39,7 +39,7 @@ One rule of thumb decides which layer a key belongs in: anything independent of 
 
 ## The four files and their jobs
 
-**`config/_default/hugo.toml`** owns site identity and build behaviour. It declares `baseURL = 'https://hencter.github.io/hugo-scratch/'`, `title`, `locale = 'zh-CN'`, `defaultContentLanguage = 'zh-cn'`, `defaultContentLanguageInSubdir = false` (so Chinese is served from the root and English under `/en/`), `enableGitInfo`, `hasCJKLanguage`, `timeZone = 'Asia/Shanghai'` and `theme = ['hugo-scratch-theme']`. Below that come the `[module]` mounts, the `[frontmatter]` date sources, `[markup]`, `[taxonomies]`, `[pagination]`, `[outputs]`, `[cascade]` and the rest.
+**`config/_default/hugo.toml`** owns site identity and build behaviour. It declares `baseURL = 'https://scratch.hugozh.cn/'`, `title`, `locale = 'zh-CN'`, `defaultContentLanguage = 'zh-cn'`, `defaultContentLanguageInSubdir = false` (so Chinese is served from the root and English under `/en/`), `enableGitInfo`, `hasCJKLanguage`, `timeZone = 'Asia/Shanghai'` and `theme = ['hugo-scratch-theme']`. Below that come the `[module]` mounts, the `[frontmatter]` date sources, `[markup]`, `[taxonomies]`, `[pagination]`, `[outputs]`, `[cascade]` and the rest. `baseURL` is the one key here tied to the deployment address: on a custom domain served from the root it carries no subpath, while the default URL of a GitHub project site would require `/<repo>/`.
 
 **`config/_default/languages.toml`** owns languages. The two entries, `zh-cn` and `en`, each declare `label`, `locale`, `weight` and `title`, and give an explicit `dateFormat` under `[<lang>.params]` rather than relying on a localisation token such as `:date_long` — the localisation data does not cover every language.
 
@@ -88,8 +88,6 @@ After a configuration change the standard move is not to refresh the browser but
 hugo --logLevel warn
 ```
 
-Warnings often explain more than errors do. To make the first warning fail the build outright, add `--panicOnWarning`, so a careless edit cannot sit unnoticed in the build log.
+Warnings often explain more than errors do. To make the first warning fail the build outright, add `--panicOnWarning`, so a careless edit cannot sit unnoticed in the build log.[^1]
 
-## Reference
-
-{{< docref "configuration/"  >}}
+[^1]: Upstream documentation: [Configuration](https://gohugo.io/configuration/)

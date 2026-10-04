@@ -29,7 +29,7 @@ weight = 20
 署名的写法没有规定格式，够用即可，例如：
 
 ```text
-来源：Hugo Scratch — https://hencter.github.io/hugo-scratch/
+来源：Hugo Scratch — https://scratch.hugozh.cn/
 许可：CC BY 4.0
 ```
 

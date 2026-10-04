@@ -21,14 +21,16 @@ submodule at `themes/hugo-scratch-theme`.
 | --- | --- |
 | Site repository | `https://github.com/hencter/hugo-scratch` |
 | Theme repository | `https://github.com/hencter/hugo-scratch-theme` |
-| Published site | `https://hencter.github.io/hugo-scratch/` |
+| Published site | `https://scratch.hugozh.cn/` |
 | Hugo floor | 0.146.0 (declared by the theme's `[module.hugoVersion]`) |
 | Verified with | Hugo 0.167.0, **standard and extended** |
 | Bilingual | `page.md` is zh-cn, `page.en.md` is its English twin |
 
-`baseURL` is `https://hencter.github.io/hugo-scratch/` — a GitHub Pages **project** site — so
-every generated URL carries the `/hugo-scratch/` prefix. Change `baseURL` and the prefix
-changes with it.
+`baseURL` is `https://scratch.hugozh.cn/` — a custom domain, served from the **root** of that
+host — so no generated URL carries a path prefix. The prefix only appears on a GitHub Pages
+*project* site published without a custom domain (`https://<owner>.github.io/<repo>/`); whichever
+form is in use, `baseURL` must match it exactly, because a mismatch shows up as 404s for the
+stylesheet and the scripts rather than as a build error.
 
 ---
 
@@ -38,7 +40,7 @@ changes with it.
 git clone --recurse-submodules https://github.com/hencter/hugo-scratch.git
 cd hugo-scratch
 npm ci          # the Tailwind v4 CLI lives at the site root; the build needs it
-hugo server     # http://localhost:1313/hugo-scratch/
+hugo server     # http://localhost:1313/
 ```
 
 Already cloned without submodules? `git submodule update --init --recursive`.
@@ -57,6 +59,17 @@ Measured on this repository:
 `npm ci` is not optional either. The Tailwind stage of the stylesheet runs a CLI installed by
 npm, not something Hugo ships. Without it the build stops with a missing `tailwindcss`
 executable, and again the message names no page.
+
+That last failure has two shapes, and the second one is the one CI platforms hit:
+
+| What the build environment has | The error |
+| --- | --- |
+| nothing called `tailwindcss` | `You need to install TailwindCSS CLI … binary with name "tailwindcss" not found in PATH` |
+| a `tailwindcss` that is not the npm CLI (a build image that ships the standalone binary) | `TAILWINDCSS: failed to transform "/css/tailwind.css" (text/css): binary "tailwindcss" is not a Node.js script` |
+
+Both mean the same thing: the install step did not run. Hugo ≥ 0.161 only accepts the CLI
+installed through npm, so a build must be `npm ci` **then** `hugo` — never `hugo` alone. Every
+platform therefore needs two steps, and `npm run build` is the second one.
 
 ---
 
@@ -153,16 +166,17 @@ The theme owns the design system, the templates and the shortcodes:
 themes/hugo-scratch-theme/
 ├── hugo.toml                  params, outputformats, mediatypes (the only keys a theme may set)
 ├── assets/css/                design-system.css, tailwind.css, tokens.css, …
+├── assets/icons/              IconifyJSON collections: lucide.json, local.json
 ├── assets/js/                 main.js + modules/
 ├── i18n/                      en.toml, zh-cn.toml — identical key sets
-├── static/                    favicon, apple-touch-icon, webmanifest, logo
+├── static/                    favicon.svg + PNG fallbacks, webmanifest, logo (no .ico)
 └── layouts/
     ├── baseof.html            the document contract
     ├── home|page|section|taxonomy|term|404.html
     ├── list.md, page.md       Markdown output formats
     ├── home.llms.txt, home.search.json, home.pages.json
     ├── rss.xml, sitemap.xml, robots.txt
-    ├── _partials/             head/, layout/, and the components
+    ├── _partials/             head/, icons/, layout/, and the components
     ├── _shortcodes/           one file per shortcode
     └── _markup/               render-*.html, one per element kind
 ```
@@ -222,9 +236,8 @@ follow a page or look a fact up without fetching the HTML.
 - `weight` must be unique inside its section, spaced by 10. Section weights: `docs` 10,
   `start` 10, `configuration` 20, `content` 30, `templates` 40, `assets` 50, `seo` 60,
   `deploy` 70, `agents` 80, `reference` 90, `blog` 20, `changelog` 30, `legal` 90.
-- Internal links are root-relative **without** the `/hugo-scratch/` prefix (`/docs/start/`)
-  and must resolve to a real page. A link that does not resolve fails the strict build.
-  `prerequisites` entries are page paths too.
+- Internal links are root-relative (`/docs/start/`) and must resolve to a real page. A link that
+  does not resolve fails the strict build. `prerequisites` entries are page paths too.
 - Every page has a twin. The English file is the same directory and base name plus `.en`:
   `quick-start.md` ↔ `quick-start.en.md`, `_index.md` ↔ `_index.en.md`,
   `index.md` ↔ `index.en.md`. Keep heading structure, shortcode calls and code blocks in step.
@@ -295,6 +308,13 @@ somewhere other than the cause.
 | content adapter produced `/changelog/v1-0-0.en/` | content adapters create pages in the **default language only**; a language suffix in `path` becomes part of the URL. The English section renders the same data through the `{{< changelog >}}` shortcode instead |
 | a `.Date.Format` call fails on data | TOML dates arrive through `hugo.Data` as an untyped value; normalise with `time.AsTime` |
 | a build carries `noindex, nofollow` | the environment was not production. Plain `hugo` **is** production and emits `index, follow, …`; only `hugo server` and `hugo -e development` are development, and `layouts/robots.txt` disallows every crawler for the same reason |
+| every code block renders monochrome, all its lines run together, and `linenos` silently does nothing | the code-block render hook printed `transform.HighlightCodeBlock .`.Inner. `.Inner` is the highlighted code and nothing else — no `<pre>`, no `<code>`, no `.chroma` element — so the newlines collapse and no `chroma-*.css` selector matches. Print `.Wrapped`, which is the complete block |
+| no page ever gets a table of contents although `showTableOfContents = true` and the page clearly has enough headings | `.Fragments.Headings` is a **one-element** slice wrapping a synthetic level-0 root (measured on 0.167, and reproduced in a theme-less throwaway site); the real headings are that node's `.Headings`. Count or walk the root's children, not the slice |
+| `[ui] showTableOfContents`, `tocMinHeadings` or `showSidebar` appear to be ignored | `index $params "camelCase"` is case-SENSITIVE, while Hugo stores param keys lower-cased — the lookup returns nil and the `default` quietly hides it. Use field access (`$ui.tocMinHeadings`), which is case-insensitive, and change the value once to prove the page count moves |
+| a `[^1]` footnote marker shows up **literally** in the rendered page, with no footnote block | the marker sits inside a `{{% %}}` shortcode body. That body is rendered in its own pass, so the definitions elsewhere on the page never pair with it. Footnotes belong in ordinary prose; inside a `{{% %}}` body keep the link inline |
+| the browser tab shows Hugo's default placeholder icon although the theme ships a brand mark | nothing in `<head>` declared an icon, so the browser fell back to its own request for `/favicon.ico` — and that file was byte-identical to the placeholder `hugo new theme` scaffolds (measured: identical SHA256, 15406 bytes). Declare `favicon.svg` and the PNG fallbacks in `_partials/head/icons.html` |
+| `Resize`/`Fill` fails on an SVG, and no Hugo command can write an `.ico` | Hugo does not rasterise SVG (`resource "/x.svg" of media type "image/svg+xml" does not support this method`), and `hugo gen` offers only chromastyles/doc/man. Raster icons must be committed assets or produced outside the build — which is why the icon data is vendored JSON read by a partial, not fetched or generated at build time |
+| `binary "tailwindcss" is not a Node.js script` | the build ran `hugo` with no install step, so Hugo picked up whatever `tailwindcss` the build image ships (the standalone binary) — Hugo ≥ 0.161 accepts only the npm CLI. Install first; see §2 |
 
 Deprecations that fail under `--panicOnWarning`, with their replacements:
 
@@ -333,6 +353,15 @@ the build.
 **Add a render hook.** `themes/hugo-scratch-theme/layouts/_markup/render-<element>.html`. The
 directory is `_markup`; a file in the wrong place is never called and never reported.
 
+**Add an icon.** The paths live in IconifyJSON collections under
+`themes/hugo-scratch-theme/assets/icons/`, and `_partials/icon.html` reads them with
+`resources.Get` + `transform.Unmarshal` (`_partials/icons/set.html`, called through
+`partialCached`, parses each collection once per build). Call it with a bare name from the
+default set or with `prefix:name`; `local:logo` is the brand mark, which belongs to no set.
+To add one, copy its body from `https://api.iconify.design/<set>.json?icons=<name>` into the
+collection — there is no script, no npm package and no network access in the build, and a name
+that is missing warns with exactly that URL.
+
 **Override something from the site.** Put a file of the same path under the site's `layouts/`,
 `assets/` or `static/`. Theme and project merge at FILE level, so a same-named file *replaces*
 the theme's — which is why the site's stylesheet is `assets/css/custom.css` and not
@@ -360,9 +389,15 @@ Tailwind CLI is not part of Hugo:
 
 ```bash
 actions/setup-node + npm ci
-hugo --ignoreCache --panicOnWarning --printPathWarnings --printUnusedTemplates --printI18nWarnings
+npm run build      # = the strict gate in §3
 actions/upload-pages-artifact + actions/deploy-pages
 ```
+
+Any other build platform needs the same two steps in the same order: an install step that runs
+`npm ci`, then a build step that runs `npm run build`. The script exists so the strict command
+lives in one place and so the platform puts `node_modules/.bin` on PATH. A platform whose build
+command is a bare `hugo`, with no install step, fails with the `tailwindcss` errors in §2 — the
+build image's own standalone `tailwindcss` is not acceptable to Hugo ≥ 0.161.
 
 The checkout needs `submodules: recursive` (for the theme) and `fetch-depth: 0` (because
 `enableGitInfo = true` makes "last updated" a fact from the commit history). Repository

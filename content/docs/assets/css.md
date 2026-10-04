@@ -11,7 +11,7 @@ outcomes = ['读懂 head/css.html 的两段编译和拼接顺序', '知道站点
 tags = ['CSS']
 +++
 
-`layouts/_partials/head/css.html` 把两段互不相干的编译拼成一份样式表：主题的设计系统走 `css.Build`，Tailwind 走 `css.TailwindCSS`，最后一起压缩、加指纹、带上 SRI。整条管线不到九十行模板，却决定了几件事——浏览器发几个请求、站点改动会不会被主题更新冲掉、以及切换明暗主题时连代码块会不会跟着变色。
+`layouts/_partials/head/css.html` 把两段互不相干的编译拼成一份样式表：主题的设计系统走 `css.Build`，Tailwind 走 `css.TailwindCSS`，最后一起压缩、加指纹、带上 SRI。整条管线不到九十行模板，却决定了几件事——浏览器发几个请求、站点改动会不会被主题更新冲掉、以及切换明暗主题时连代码块会不会跟着变色。[^1]
 
 ## 两段编译，一份样式表
 
@@ -117,9 +117,7 @@ Tailwind 那一段不是 Hugo 自己实现的，它调用 npm 装在站点根目
 - `[security.exec] allow` 里包含 `tailwindcss`，否则 Hugo 不会执行它；
 - `layouts/_partials/head.html` 把 `head/css.html` 放在延迟模板里调用：统计文件要等所有页面渲染完才存在，内联调用会拿上一次构建的数据去编译，干净克隆上直接失败。
 
-排查顺序和这张依赖表一致：页面完全没有颜色，先看 `public/css/bundle.min.<hash>.css` 有没有生成；只差 Tailwind 的工具类，先确认 `npm ci` 跑过、`hugo_stats.json` 存在；只有你新加的规则不生效，确认它写在 `custom.css` 或它导入的文件里；源文件和产物都对但浏览器还是旧的，指纹保证内容变化一定换文件名，所以先怀疑有东西缓存住了 HTML。
+排查顺序和这张依赖表一致：页面完全没有颜色，先看 `public/css/bundle.min.<hash>.css` 有没有生成；只差 Tailwind 的工具类，先确认 `npm ci` 跑过、`hugo_stats.json` 存在；只有你新加的规则不生效，确认它写在 `custom.css` 或它导入的文件里；源文件和产物都对但浏览器还是旧的，指纹保证内容变化一定换文件名，所以先怀疑有东西缓存住了 HTML。[^2]
 
-## 参考
-
-{{< docref href="functions/css/" title="CSS functions" >}}
-{{< docref href="functions/css/tailwindcss/" title="Tailwind CSS" >}}
+[^1]: 上游文档：[CSS functions](https://hugozh.cn/functions/css/)
+[^2]: 上游文档：[Tailwind CSS](https://hugozh.cn/functions/css/tailwindcss/)

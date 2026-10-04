@@ -22,7 +22,7 @@ weight = 10
 difficulty = 'intermediate'
 estimatedTime = 25
 prerequisites = ['/docs/start/quick-start/', '/docs/configuration/site-config/']
-outcomes = ['Explain why the /hugo-scratch/ prefix of a project site cannot be dropped', 'Switch the repository Pages source to GitHub Actions']
+outcomes = ['Explain why baseURL must match the address the site is actually served from', 'Switch the repository Pages source to GitHub Actions']
 ```
 
 `layouts/_partials/facts.html` renders those fields as the facts panel at the top of the page, and `/pages.json` (see [output formats](/docs/templates/output-formats/)) carries the same values, so a person and an agent are reading one answer. `prerequisites` holds root-relative paths, which the panel passes to `site.GetPage`: when the lookup succeeds it prints the target page's short title and real link, and when it fails it prints the raw string.

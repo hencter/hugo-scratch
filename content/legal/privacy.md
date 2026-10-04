@@ -9,7 +9,7 @@ weight = 10
 ## 结论
 
 **页面只请求同源的资源。** 样式表、脚本、图片和 `search.json` 都来自本站，
-`https://hencter.github.io/hugo-scratch/` 之外没有任何请求。
+`https://scratch.hugozh.cn/` 之外没有任何请求。
 默认配置下，这个站点不设置任何 Cookie，也不向任何分析服务报告访问。
 下面逐条说明，并给出可以自己验证的做法。
 

@@ -99,8 +99,6 @@ import * as params from '@params';
 
 ## 这套管线不做的事
 
-两件事值得明说，因为很容易从别的站点带过来。第一，脚本这一段落没有延迟渲染：`layouts/_partials/head.html` 里只有样式表被包在 `templates.Defer` 里（Tailwind 要等 `hugo_stats.json` 写完才敢编译），`head/js.html` 是直接调用的，它在解析 `<head>` 时就把标签产出，`defer` 只负责执行的时机。第二，没有前端框架，也没有水合过程——每个模块都是拿到节点、加监听、改属性就结束，页面在脚本加载之前已经是一份可读、可点的文档。想加一个需要状态树的交互组件，先想清楚它值不值得破坏这个前提。
+两件事值得明说，因为很容易从别的站点带过来。第一，脚本这一段落没有延迟渲染：`layouts/_partials/head.html` 里只有样式表被包在 `templates.Defer` 里（Tailwind 要等 `hugo_stats.json` 写完才敢编译），`head/js.html` 是直接调用的，它在解析 `<head>` 时就把标签产出，`defer` 只负责执行的时机。第二，没有前端框架，也没有水合过程——每个模块都是拿到节点、加监听、改属性就结束，页面在脚本加载之前已经是一份可读、可点的文档。想加一个需要状态树的交互组件，先想清楚它值不值得破坏这个前提。[^1]
 
-## 参考
-
-{{< docref href="functions/js/build/" title="js.Build" >}}
+[^1]: 上游文档：[js.Build](https://hugozh.cn/functions/js/build/)

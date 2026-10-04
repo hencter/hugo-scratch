@@ -11,7 +11,7 @@ outcomes = ['Know each shortcode and its arguments', 'Decide between standard an
 tags = ['shortcodes', 'templates']
 +++
 
-Shortcodes live in `layouts/_shortcodes/<name>.html`. A site's shortcode and the theme's share one lookup chain, and **the site's file wins** — that is how you override one shortcode without forking the theme.
+Shortcodes live in `layouts/_shortcodes/<name>.html`. A site's shortcode and the theme's share one lookup chain, and **the site's file wins** — that is how you override one shortcode without forking the theme.[^1]
 
 ## Two notations, and what they actually decide
 
@@ -171,16 +171,13 @@ Renders the release list straight from `data/changelog.toml`. The same data is e
 
 {{< changelog >}}
 
-## Reference
-
-{{< docref "content-management/shortcodes/"  >}}
-
-
 ## Cross-language references: docref
 
 {{< docref "content-management/shortcodes/" >}}
 
 It does exactly one thing: **one call site, and each language points at its own upstream documentation.** The host comes from `[docs]` in `config/_default/params.toml`, so the Chinese page gives hugozh.cn and the English page gives gohugo.io. Switch language and the reference switches with it, while the prose is written once. The link carries `hreflang` and `lang` naming the target's language, and the host is printed beside it, because "reference" means different things on the two sites: a community translation versus the upstream original.
+
+References in this site's own prose are not written that way any more: the citing sentence carries a Markdown footnote (`[^1]`) and the definition sits at the end of the file, where Goldmark renders it as the footnote block. `docref` is therefore kept for the case that wants a standalone reference box — it carries the host name and `hreflang`, which suits saying "read this upstream page" in place.
 
 Path compatibility was measured, not assumed: 26 of 26 sampled documentation paths returned 200 on both hosts. If one ever diverges, override it per language without changing the call shape:
 
@@ -195,3 +192,5 @@ Path compatibility was measured, not assumed: 26 of 26 sampled documentation pat
 That box is not written on this page; it is `{{</* include "build-gate" */>}}`. The fragment lives at `content/snippets/build-gate/index.md`, where `headless = true` in the front matter makes it a **headless bundle**: Hugo renders its content but publishes nothing — no URL, no listing entry, no Markdown twin. The difference is concrete: `public/snippets/` does not exist in the build output at all, yet the text appears on the two pages that include it.
 
 `site.GetPage` finds a headless bundle by path, which is what makes this work; page collections such as `.Pages`, `.RegularPages` and `.Sections` never contain it.
+
+[^1]: Upstream documentation: [Shortcodes](https://gohugo.io/content-management/shortcodes/)

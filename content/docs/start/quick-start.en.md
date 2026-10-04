@@ -88,12 +88,10 @@ To see exactly which files Hugo treats as content, print the inventory with `hug
 
 ## Next
 
-With the site running locally, read [Directory structure](/docs/start/directory-structure/) next: it marks the directories you must not edit by hand, `public/` and `resources/` among them. Then read [Configuration](/docs/configuration/) to understand why this site keeps no `hugo.toml` at its root and how the theme, `_default` and environment layers merge — every configuration key mentioned in later pages is defined there.
+With the site running locally, read [Directory structure](/docs/start/directory-structure/) next: it marks the directories you must not edit by hand, `public/` and `resources/` among them. Then read [Configuration](/docs/configuration/) to understand why this site keeps no `hugo.toml` at its root and how the theme, `_default` and environment layers merge — every configuration key mentioned in later pages is defined there.[^1]
 
 ## The gate before delivery
 
 {{< include "build-gate" >}}
 
-## Reference
-
-{{< docref "getting-started/"  >}}
+[^1]: Upstream documentation: [Getting started](https://gohugo.io/getting-started/)

@@ -81,8 +81,6 @@ series = ['从零搭一个 Hugo 站点']
 
 `[params.ui] showTags` 控制文章页是否显示标签。分类法页面本身由 `layouts/taxonomy.html` 和 `layouts/term.html` 渲染，词条列表交给 `layouts/_partials/terms.html`。如果你打算完全不用分类法，可以在配置里加上 `disableKinds = ['taxonomy', 'term']`，让 Hugo 不再生成这些页面；但在此之前请先确认没有模板或菜单引用它们。
 
-导航相关的配置就这些。改完之后跑一次构建，警告里通常能立刻看出菜单项指向了不存在的页面，或者某个章节的 `weight` 与邻居重复了。
+导航相关的配置就这些。改完之后跑一次构建，警告里通常能立刻看出菜单项指向了不存在的页面，或者某个章节的 `weight` 与邻居重复了。[^1]
 
-## 参考
-
-{{< docref "content-management/menus/"  >}}
+[^1]: 上游文档：[Menus](https://hugozh.cn/content-management/menus/)
