@@ -414,3 +414,12 @@ settings: Pages → Source = GitHub Actions.
 - [ ] `hugo_stats.json` changed if you changed class names, and the CSS bundle was regenerated.
 - [ ] Any claim about a default, a flag or a version was verified against this Hugo, not recalled.
 - [ ] If two agents worked in parallel, the Lead ran the strict build again on the merged tree.
+
+---
+
+## 12. Installed project skill
+
+The `hugo-static-site` skill is installed at `.agents/skills/hugo-static-site/` from the
+manifest at `https://hugozh.cn/skill/skill-manifest.json`. Its files and relative paths are
+kept exactly as listed by that manifest. The project uses this directory as its skill source;
+the skill is scanned and loaded when a new Codex session starts.
